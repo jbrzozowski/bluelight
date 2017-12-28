@@ -59,7 +59,7 @@
     #define FACTORYRESET_ENABLE     1
 
     #define PIN                     6
-    #define NUMPIXELS               64
+    #define NUMPIXELS               60
 /*=========================================================================*/
 
 Adafruit_NeoPixel pixel = Adafruit_NeoPixel(NUMPIXELS, PIN);
@@ -71,8 +71,8 @@ SoftwareSerial bluefruitSS = SoftwareSerial(BLUEFRUIT_SWUART_TXD_PIN, BLUEFRUIT_
 Adafruit_BluefruitLE_UART ble(bluefruitSS, BLUEFRUIT_UART_MODE_PIN,
                       BLUEFRUIT_UART_CTS_PIN, BLUEFRUIT_UART_RTS_PIN);
 */
-
 /* ...or hardware serial, which does not need the RTS/CTS pins. Uncomment this line */
+// #define BLUEFRUIT_HWSERIAL_NAME      Serial1
 // Adafruit_BluefruitLE_UART ble(BLUEFRUIT_HWSERIAL_NAME, BLUEFRUIT_UART_MODE_PIN);
 
 /* ...hardware SPI, using SCK/MOSI/MISO hardware SPI pins and then user selected CS/IRQ/RST */
@@ -151,8 +151,8 @@ void setup(void)
     }
   }
 
-  /* Disable command echo from Bluefruit */
-  ble.echo(false);
+  /* Enable command echo from Bluefruit */
+  ble.echo(true);
 
   Serial.println("Requesting Bluefruit info:");
   /* Print Bluefruit information */
@@ -162,7 +162,7 @@ void setup(void)
   Serial.println(F("Then activate/use the sensors, color picker, game controller, etc!"));
   Serial.println();
 
-  ble.verbose(false);  // debug info is a little annoying after this point!
+  ble.verbose(true);  // debug info is a little annoying after this point!
 
   /* Wait for connection */
   while (! ble.isConnected()) {
@@ -191,7 +191,7 @@ void loop(void)
   //if (len == 0) return;
 
   /* Got a packet! */
-  // printHex(packetbuffer, len);
+  printHex(packetbuffer, len);
 
   // Color
   if (packetbuffer[1] == 'C') {

@@ -121,6 +121,7 @@ uint8_t green = 100;
 uint8_t blue = 100;
 uint8_t animationState = 1;
 uint8_t mode = 1;
+bool debug = false;
 
 int pos = 0, dir = 1; // Position, direction of "eye" for larson scanner animation
 
@@ -160,8 +161,12 @@ void setup(void)
     }
   }
 
-  /* Enable/Disable command echo from Bluefruit */
-  ble.echo(true);
+  // Enable/Disable command echo from Bluefruit
+  if(debug) {
+    ble.echo(true);
+  } else {
+    ble.echo(false);
+  }
 
   Serial.println("Requesting Bluefruit info:");
   /* Print Bluefruit information */
@@ -171,7 +176,12 @@ void setup(void)
   Serial.println(F("Then Enter characters to send to Bluefruit"));
   Serial.println();
 
-  ble.verbose(true);  // debug info is a little annoying after this point!
+  // Enable/Disable Bluefruit verbosity
+  if (debug) {
+    ble.verbose(true);
+  } else {
+    ble.verbose(false);
+  }
 
   /* Wait for connection */
   while (! ble.isConnected()) {
@@ -198,7 +208,7 @@ void loop(void)
 {
   // Check for user input
   char inputs[BUFSIZE+1];
-
+/**
   if ( getUserInput(inputs, BUFSIZE) )
   {
     // Send characters to Bluefruit
@@ -213,6 +223,7 @@ void loop(void)
       Serial.println(F("Failed to send?"));
     }
   }
+**/
 
   // Check for incoming characters from Bluefruit
   ble.println("AT+BLEUARTRX");
@@ -224,6 +235,7 @@ void loop(void)
     return;
   }
 // System control messages
+// @todo - add a check for runtime setting of debug
   if (strcmp(ble.buffer, "0") == 0) {
       Serial.print("Setting animationState = 0");
       animationState = 0;

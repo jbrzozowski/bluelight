@@ -236,10 +236,12 @@ void loop(void)
     Serial.print("Buffer = ");
     Serial.println(ble.buffer);
   }
+  /**
   if (strcmp(ble.buffer, "OK") == 0) {
     // no data
     return;
   }
+  **/
 // System control messages
 // @todo - add a check for runtime setting of debug
   if (strcmp(ble.buffer, "0") == 0) {

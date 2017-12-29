@@ -216,16 +216,25 @@ void loop(void)
   // Check for incoming characters from Bluefruit
   ble.println("AT+BLEUARTRX");
   ble.readline();
+  Serial.print("Buffer = ");
+  Serial.println(ble.buffer);
   if (strcmp(ble.buffer, "OK") == 0) {
     // no data
     return;
   }
   // Some data was found, its in the buffer
   Serial.print(F("[Recv] "));
-  if (strcm(ble.buffer, )) {
-
+  if (strcmp(ble.buffer, "1")) {
+      Serial.print("Mode = 1");
+  } else if (strcmp(ble.buffer, "2")) {
+      Serial.print("Mode = 2");
+  } else if (strcmp(ble.buffer, "2")) {
+      Serial.print("Mode = 2");
+  } else if (strcmp(ble.buffer, "3")) {
+      Serial.print("Mode = 3");
+  } else if (strcmp(ble.buffer, "4")) {
+      Serial.print("Mode = 4");
   }
-  Serial.println(ble.buffer);
   ble.waitForOK();
 }
 

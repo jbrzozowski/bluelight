@@ -43,8 +43,8 @@ int
   lvl       = 10,      // Current "dampened" audio level
   minLvlAvg = 0,      // For dynamic adjustment of graph low & high
   maxLvlAvg = 512;
-Adafruit_NeoPixel
-  strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
 
@@ -52,7 +52,7 @@ void setup() {
   // Connect 3.3V to mic AND TO AREF ON ARDUINO and enable this
   // line.  Audio samples are 'cleaner' at 3.3V.
   // COMMENT OUT THIS LINE FOR 3.3V ARDUINOS (FLORA, ETC.):
-//  analogReference(EXTERNAL);
+  //  analogReference(EXTERNAL);
 
   memset(vol, 0, sizeof(vol));
   strip.begin();
@@ -84,23 +84,19 @@ void loop() {
     else strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
 
   }
-
-
-
+  
   // Draw peak dot
   if(peak > 0 && peak <= N_PIXELS-1) strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
 
    strip.show(); // Update strip
 
-// Every few frames, make the peak pixel drop by 1:
+  // Every few frames, make the peak pixel drop by 1:
 
     if(++dotCount >= PEAK_FALL) { //fall rate
 
       if(peak > 0) peak--;
       dotCount = 0;
     }
-
-
 
   vol[volCount] = n;                      // Save sample for dynamic leveling
   if(++volCount >= SAMPLES) volCount = 0; // Advance/rollover sample counter
@@ -118,9 +114,8 @@ void loop() {
   // and 'jumpy'...so keep some minimum distance between them (this
   // also lets the graph go to zero when no sound is playing):
   if((maxLvl - minLvl) < TOP) maxLvl = minLvl + TOP;
-  minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
-  maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
-
+    minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
+    maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
 }
 
 // Input a value 0 to 255 to get a color value.

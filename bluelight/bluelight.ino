@@ -237,7 +237,152 @@ void loop(void)
   }
   ble.waitForOK();
 }
+// Functions
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<pixel.numPixels(); i++) {
+      pixel.setPixelColor(i, c);
+      pixel.show();
+      delay(wait);
+  }
+}
 
+void larsonScanner(uint8_t wait){
+   int j;
+
+ for(uint16_t i=0; i<pixel.numPixels()+5; i++) {
+  // Draw 5 pixels centered on pos.  setPixelColor() will clip any
+  // pixels off the ends of the strip, we don't need to watch for that.
+  pixel.setPixelColor(pos - 2, 0x100000); // Dark red
+  pixel.setPixelColor(pos - 1, 0x800000); // Medium red
+  pixel.setPixelColor(pos    , 0xFF3000); // Center pixel is brightest
+  pixel.setPixelColor(pos + 1, 0x800000); // Medium red
+  pixel.setPixelColor(pos + 2, 0x100000); // Dark red
+
+  pixel.show();
+  delay(wait);
+
+  // Rather than being sneaky and erasing just the tail pixel,
+  // it's easier to erase it all and draw a new one next time.
+  for(j=-2; j<= 2; j++) pixel.setPixelColor(pos+j, 0);
+
+  // Bounce off ends of strip
+  pos += dir;
+  if(pos < 0) {
+    pos = 1;
+    dir = -dir;
+  } else if(pos >= pixel.numPixels()) {
+    pos = pixel.numPixels() - 2;
+    dir = -dir;
+  }
+ }
+}
+
+void flashRandom(int wait, uint8_t howmany) {
+ randomSeed(analogRead(0));
+  for(uint16_t i=0; i<howmany; i++) {
+    // get a random pixel from the list
+    int j = random(pixel.numPixels());
+
+    // now we will 'fade' it in 5 steps
+    for (int x=0; x < 5; x++) {
+      int r = red * (x+1); r /= 5;
+      int g = green * (x+1); g /= 5;
+      int b = blue * (x+1); b /= 5;
+
+      pixel.setPixelColor(j, pixel.Color(r, g, b));
+      pixel.show();
+      delay(wait);
+    }
+    // & fade out in 5 steps
+    for (int x=5; x >= 0; x--) {
+      int r = red * x; r /= 5;
+      int g = green * x; g /= 5;
+      int b = blue * x; b /= 5;
+
+      pixel.setPixelColor(j, pixel.Color(r, g, b));
+      pixel.show();
+      delay(wait);
+    }
+  }
+  // LEDs will be off when done (they are faded to 0)
+}
+
+void rainbow(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256; j++) {
+    for(i=0; i<pixel.numPixels(); i++) {
+      pixel.setPixelColor(i, Wheel((i+j) & 255));
+    }
+    pixel.show();
+    delay(wait);
+  }
+}
+
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< pixel.numPixels(); i++) {
+      pixel.setPixelColor(i, Wheel(((i * 256 / pixel.numPixels()) + j) & 255));
+    }
+    pixel.show();
+    delay(wait);
+  }
+}
+
+//Theatre-style crawling lights.
+void theaterChase(uint32_t c, uint8_t wait) {
+  for (int j=0; j<10; j++) {  //do 10 cycles of chasing
+    for (int q=0; q < 3; q++) {
+      for (int i=0; i < pixel.numPixels(); i=i+3) {
+        pixel.setPixelColor(i+q, c);    //turn every third pixel on
+      }
+      pixel.show();
+
+      delay(wait);
+
+      for (int i=0; i < pixel.numPixels(); i=i+3) {
+        pixel.setPixelColor(i+q, 0);        //turn every third pixel off
+      }
+    }
+  }
+}
+
+//Theatre-style crawling lights with rainbow effect
+void theaterChaseRainbow(uint8_t wait) {
+  for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
+    for (int q=0; q < 3; q++) {
+      for (int i=0; i < pixel.numPixels(); i=i+3) {
+        pixel.setPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
+      }
+      pixel.show();
+
+      delay(wait);
+
+      for (int i=0; i < pixel.numPixels(); i=i+3) {
+        pixel.setPixelColor(i+q, 0);        //turn every third pixel off
+      }
+    }
+  }
+}
+
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return pixel.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return pixel.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return pixel.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
 /**************************************************************************/
 /*!
     @brief  Checks for user input (via the Serial Monitor)

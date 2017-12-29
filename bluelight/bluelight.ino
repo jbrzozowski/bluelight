@@ -228,8 +228,11 @@ void loop(void)
   // Check for incoming characters from Bluefruit
   ble.println("AT+BLEUARTRX");
   ble.readline();
-  Serial.print("Buffer = ");
-  Serial.println(ble.buffer);
+  // Control for BLE buffer debug
+  if (debug) {
+    Serial.print("Buffer = ");
+    Serial.println(ble.buffer);
+  }
   if (strcmp(ble.buffer, "OK") == 0) {
     // no data
     return;
@@ -278,6 +281,8 @@ void loop(void)
       animationState = 13;
   }
 
+  Serial.print("animationState = ");
+  Serial.println(animationState);
   if (animationState == 0){
     pixel.begin(); // This initializes the NeoPixel library.
     for(uint8_t i=0; i<NUMPIXELS; i++) {

@@ -120,6 +120,7 @@ uint8_t red = 100;
 uint8_t green = 100;
 uint8_t blue = 100;
 uint8_t animationState = 1;
+uint8_t mode = 1;
 
 int pos = 0, dir = 1; // Position, direction of "eye" for larson scanner animation
 
@@ -225,16 +226,60 @@ void loop(void)
   // Some data was found, its in the buffer
   Serial.print(F("[Recv] "));
   if (strcmp(ble.buffer, "1")) {
-      Serial.print("Mode = 1");
-  } else if (strcmp(ble.buffer, "2")) {
-      Serial.print("Mode = 2");
-  } else if (strcmp(ble.buffer, "2")) {
-      Serial.print("Mode = 2");
-  } else if (strcmp(ble.buffer, "3")) {
-      Serial.print("Mode = 3");
-  } else if (strcmp(ble.buffer, "4")) {
-      Serial.print("Mode = 4");
+      Serial.print("Setting animationState = 1");
+      animationState = 1;
   }
+  if (strcmp(ble.buffer, "2")) {
+      Serial.print("Setting animationState = 2");
+      animationState = 2;
+  }
+  if (strcmp(ble.buffer, "3")) {
+      Serial.print("Setting animationState = 3");
+      animationState = 3;
+  }
+  if (strcmp(ble.buffer, "4")) {
+      Serial.print("Setting animationState = 4");
+      animationState = 4;
+  }
+  if (strcmp(ble.buffer, "5")) {
+      Serial.print("Setting animationState = 4");
+      animationState = 4;
+  }
+
+  if (animationState == 1){ // button labeled "1" in control pad
+    for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
+          pixel.setPixelColor(i, pixel.Color(0,0,0));
+        }
+     flashRandom(5,random(10,30));
+     pixel.show(); // This sends the updated pixel color to the hardware.
+   }
+
+  if (animationState == 2){ // button labeled "2" in control pad
+    for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
+          pixel.setPixelColor(i, pixel.Color(0,0,0));
+        }
+    colorWipe(pixel.Color(red, green, blue), 20);
+    pixel.show(); // This sends the updated pixel color to the hardware.
+    colorWipe(pixel.Color(0, 0, 0), 20);
+    pixel.show();
+  }
+
+  if (animationState == 3){ // button labeled "3" in control pad
+    for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
+          pixel.setPixelColor(i, pixel.Color(0,0,0));
+        }
+    larsonScanner(30); // larsonScanner is set to red and does not take color input.
+    pixel.show(); // This sends the updated pixel color to the hardware.
+  }
+
+  if (animationState == 4){ // button labeled "4" in control pad
+    for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
+          pixel.setPixelColor(i, pixel.Color(0,0,0));
+        }
+    rainbowCycle(20);
+    pixel.show(); // This sends the updated pixel color to the hardware.
+  }
+
   ble.waitForOK();
 }
 // Functions

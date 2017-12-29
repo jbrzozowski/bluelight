@@ -333,10 +333,10 @@ void loop(void)
     pixel.show(); // This sends the updated pixel color to the hardware.
   }
 
-  ble.waitForOK();
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);
+  ble.waitForOK();
 }
 // Functions
 // Fill the dots one after the other with a color

@@ -227,53 +227,43 @@ void loop(void)
   if (strcmp(ble.buffer, "0") == 0) {
       Serial.print("Setting animationState = 0");
       animationState = 0;
-      next;
   }
   if (strcmp(ble.buffer, "1") == 0) {
       Serial.print("Setting animationState = 1");
       animationState = 1;
-      next;
   }
   if (strcmp(ble.buffer, "2") == 0) {
       Serial.print("Setting animationState = 2");
       animationState = 2;
-      next;
   }
   if (strcmp(ble.buffer, "3") == 0) {
       Serial.print("Setting animationState = 3");
       animationState = 3;
-      next;
   }
   if (strcmp(ble.buffer, "4") == 0) {
       Serial.print("Setting animationState = 4");
       animationState = 4;
-      next;
   }
   if (strcmp(ble.buffer, "5") == 0) {
       Serial.print("Setting animationState = 5");
       animationState = 5;
-      next;
   }
   // Lighting control
   if (strcmp(ble.buffer, "10") == 0) {
       Serial.print("Setting animationState = 10");
       animationState = 10;
-      next;
   }
   if (strcmp(ble.buffer, "11") == 0) {
       Serial.print("Setting animationState = 11");
       animationState = 11;
-      next;
   }
   if (strcmp(ble.buffer, "12") == 0) {
       Serial.print("Setting animationState = 12");
       animationState = 12;
-      next;
   }
   if (strcmp(ble.buffer, "13") == 0) {
       Serial.print("Setting animationState = 13");
       animationState = 13;
-      next;
   }
 
   if (animationState == 0){

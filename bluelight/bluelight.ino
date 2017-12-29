@@ -206,6 +206,9 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
+  Serial.println("loop() top");
+  Serial.print("animationState = ");
+  Serial.println(animationState);
   // Check for user input
   char inputs[BUFSIZE+1];
 /**
@@ -240,44 +243,44 @@ void loop(void)
 // System control messages
 // @todo - add a check for runtime setting of debug
   if (strcmp(ble.buffer, "0") == 0) {
-      Serial.print("Setting animationState = 0");
+      Serial.println("Setting animationState = 0");
       animationState = 0;
   }
   if (strcmp(ble.buffer, "1") == 0) {
-      Serial.print("Setting animationState = 1");
+      Serial.println("Setting animationState = 1");
       animationState = 1;
   }
   if (strcmp(ble.buffer, "2") == 0) {
-      Serial.print("Setting animationState = 2");
+      Serial.println("Setting animationState = 2");
       animationState = 2;
   }
   if (strcmp(ble.buffer, "3") == 0) {
-      Serial.print("Setting animationState = 3");
+      Serial.println("Setting animationState = 3");
       animationState = 3;
   }
   if (strcmp(ble.buffer, "4") == 0) {
-      Serial.print("Setting animationState = 4");
+      Serial.println("Setting animationState = 4");
       animationState = 4;
   }
   if (strcmp(ble.buffer, "5") == 0) {
-      Serial.print("Setting animationState = 5");
+      Serial.println("Setting animationState = 5");
       animationState = 5;
   }
   // Lighting control
   if (strcmp(ble.buffer, "10") == 0) {
-      Serial.print("Setting animationState = 10");
+      Serial.println("Setting animationState = 10");
       animationState = 10;
   }
   if (strcmp(ble.buffer, "11") == 0) {
-      Serial.print("Setting animationState = 11");
+      Serial.println("Setting animationState = 11");
       animationState = 11;
   }
   if (strcmp(ble.buffer, "12") == 0) {
-      Serial.print("Setting animationState = 12");
+      Serial.println("Setting animationState = 12");
       animationState = 12;
   }
   if (strcmp(ble.buffer, "13") == 0) {
-      Serial.print("Setting animationState = 13");
+      Serial.println("Setting animationState = 13");
       animationState = 13;
   }
 
@@ -331,6 +334,9 @@ void loop(void)
   }
 
   ble.waitForOK();
+  Serial.println("loop() bottom");
+  Serial.print("animationState = ");
+  Serial.println(animationState);
 }
 // Functions
 // Fill the dots one after the other with a color

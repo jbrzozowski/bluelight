@@ -223,8 +223,11 @@ void loop(void)
     // no data
     return;
   }
-  // Some data was found, its in the buffer
-  Serial.print(F("[Recv] "));
+// System control messages
+  if (strcmp(ble.buffer, "0")) {
+      Serial.print("Setting animationState = 0");
+      animationState = 0;
+  }
   if (strcmp(ble.buffer, "1")) {
       Serial.print("Setting animationState = 1");
       animationState = 1;
@@ -242,11 +245,41 @@ void loop(void)
       animationState = 4;
   }
   if (strcmp(ble.buffer, "5")) {
-      Serial.print("Setting animationState = 4");
-      animationState = 4;
+      Serial.print("Setting animationState = 5");
+      animationState = 5;
+  }
+  // Lighting control
+  if (strcmp(ble.buffer, "10")) {
+      Serial.print("Setting animationState = 10");
+      animationState = 10;
+  }
+  if (strcmp(ble.buffer, "11")) {
+      Serial.print("Setting animationState = 11");
+      animationState = 11;
+  }
+  if (strcmp(ble.buffer, "12")) {
+      Serial.print("Setting animationState = 12");
+      animationState = 12;
+  }
+  if (strcmp(ble.buffer, "13")) {
+      Serial.print("Setting animationState = 13");
+      animationState = 13;
   }
 
-  if (animationState == 1){ // button labeled "1" in control pad
+  if (animationState == 0){
+    pixel.begin(); // This initializes the NeoPixel library.
+    for(uint8_t i=0; i<NUMPIXELS; i++) {
+      pixel.setPixelColor(i, pixel.Color(0,0,0)); // off
+    }
+   }
+
+   if (animationState == 1){
+     colorWipe(pixel.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
+     colorWipe(pixel.Color(0, 0, 0), 20);
+     pixel.show();
+    }
+
+  if (animationState == 10){
     for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
           pixel.setPixelColor(i, pixel.Color(0,0,0));
         }
@@ -254,7 +287,7 @@ void loop(void)
      pixel.show(); // This sends the updated pixel color to the hardware.
    }
 
-  if (animationState == 2){ // button labeled "2" in control pad
+  if (animationState == 11){
     for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
           pixel.setPixelColor(i, pixel.Color(0,0,0));
         }
@@ -264,7 +297,7 @@ void loop(void)
     pixel.show();
   }
 
-  if (animationState == 3){ // button labeled "3" in control pad
+  if (animationState == 12){
     for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
           pixel.setPixelColor(i, pixel.Color(0,0,0));
         }
@@ -272,7 +305,7 @@ void loop(void)
     pixel.show(); // This sends the updated pixel color to the hardware.
   }
 
-  if (animationState == 4){ // button labeled "4" in control pad
+  if (animationState == 13){
     for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
           pixel.setPixelColor(i, pixel.Color(0,0,0));
         }

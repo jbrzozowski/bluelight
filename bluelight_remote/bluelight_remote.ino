@@ -127,6 +127,8 @@ int pos = 0, dir = 1; // Position, direction of "eye" for larson scanner animati
 
 void setup(void)
 {
+  // Configure pin for blinking
+  pinMode(13, OUTPUT);
   while (!Serial);  // required for Flora & Micro
   delay(500);
 
@@ -206,6 +208,8 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
+  digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
+  // delay(1000);              // wait for a second
   Serial.println("loop() top");
   Serial.print("animationState = ");
   Serial.println(animationState);
@@ -338,6 +342,8 @@ void loop(void)
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);
+  digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
+  // delay(1000);              // wait for a second
   ble.waitForOK();
 }
 // Functions

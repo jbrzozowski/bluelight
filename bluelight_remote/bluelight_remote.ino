@@ -1,6 +1,4 @@
 /*********************************************************************
- Project bluelight  - open source project that enables remote control of bluetooth
-                    - enable LED lights
  This is an example for our nRF51822 based Bluefruit LE modules
 
  Pick one up today in the adafruit shop!

@@ -90,13 +90,3 @@ This paragraph must be included in any redistribution.
 #define SAMPLES   60  // Length of buffer for dynamic level adjustment
 #define TOP       (N_PIXELS + 2) // Allow dot to go slightly off scale
 #define PEAK_FALL 40  // Rate of peak falling dot
-
-byte
-  peak      = 0,      // Used for falling dot
-  dotCount  = 0,      // Frame counter for delaying dot-falling speed
-  volCount  = 0;      // Frame counter for storing past volume data
-int
-  vol[SAMPLES],       // Collection of prior volume samples
-  lvl       = 10,      // Current "dampened" audio level
-  minLvlAvg = 0,      // For dynamic adjustment of graph low & high
-  maxLvlAvg = 512;

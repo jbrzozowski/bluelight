@@ -14,6 +14,7 @@
 
 #include <string.h>
 #include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
 #include <SPI.h>
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
@@ -69,9 +70,16 @@
     #define MINIMUM_FIRMWARE_VERSION    "0.6.6"
     #define MODE_LED_BEHAVIOUR          "MODE"
     #define PIN                     6
-    #define NUMPIXELS               60
+    #define NUMPIXELS               91
+    #define MICPIN                  A1
+    // Added to support RGB LED strips
+    #define REDPIN 11
+    #define GREENPIN 9
+    #define BLUEPIN 5
+    #define FADESPEED 5     // make this higher to slow down
 /*=========================================================================*/
-Adafruit_NeoPixel pixel = Adafruit_NeoPixel(NUMPIXELS, PIN);
+// Using strip instead, below is for NeoPixel pixel object
+// Adafruit_NeoPixel pixel = Adafruit_NeoPixel(NUMPIXELS, PIN);
 
 // Create the bluefruit object, either software serial...uncomment these lines
 /*
@@ -100,6 +108,20 @@ void error(const __FlashStringHelper*err) {
 }
 
 // function prototypes over in packetParser.cpp
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return pixel.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return pixel.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return pixel.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
 uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout);
 float parsefloat(uint8_t *buffer);
 void printHex(const uint8_t * data, const uint32_t numBytes);
@@ -137,18 +159,37 @@ int
   maxLvlAvg = 512;
 
 // @todo - needs to be fixed
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+// Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+// Parameter 1 = number of pixels in strip
+// Parameter 2 = pin number (most are valid)
+// Parameter 3 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+// Adafruit_NeoPixel strip = Adafruit_NeoPixel(150, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB);
 
 void setup(void)
 {
-  // Configure pin for blinking
+  Serial.println("setup -> start");
+  // Configure pin for onboard LED blinking
   pinMode(13, OUTPUT);
+  // Setup for RGB LED strip
+  // Commenting out since using Neopixel strip
+  /**
+  pinMode(REDPIN, OUTPUT);
+  pinMode(GREENPIN, OUTPUT);
+  pinMode(BLUEPIN, OUTPUT);
+  **/
+  // Comment out to prevent the need to connect serially
   /**
   while (!Serial);  // required for Flora & Micro
   delay(500);
   **/
 
   // turn off neopixel
+  /*
   pixel.begin(); // This initializes the NeoPixel library.
   for(uint8_t i=0; i<NUMPIXELS; i++) {
     pixel.setPixelColor(i, pixel.Color(0,0,0)); // off
@@ -156,7 +197,12 @@ void setup(void)
   colorWipe(pixel.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
   colorWipe(pixel.Color(0, 0, 0), 20);
   pixel.show();
+  **/
 
+  strip.begin();
+  // strip.setPixelColor(n, red, green, blue);  
+  strip.show(); // Initialize all pixels to 'off'
+  
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Command Mode Example"));
   Serial.println(F("---------------------------------------"));
@@ -213,6 +259,7 @@ void setup(void)
     Serial.println(F("******************************"));
     Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
+    ble.sendCommandCheckOK("AT+GAPDEVNAME=JEDI");
     Serial.println(F("******************************"));
   }
 
@@ -226,6 +273,7 @@ void setup(void)
   memset(vol, 0, sizeof(vol));
   // @todo - needs to be fixed
   strip.begin();
+  Serial.println("setup -> complete");  
 }
 
 /**************************************************************************/
@@ -316,6 +364,10 @@ void loop(void)
       Serial.println("Setting animationState = 13");
       animationState = 13;
   }
+  if (strcmp(ble.buffer, "14") == 0) {
+      Serial.println("Setting animationState = 14");
+      animationState = 14;
+  }  
 
   Serial.print("animationState = ");
   Serial.println(animationState);
@@ -336,7 +388,7 @@ void loop(void)
     for(uint16_t i=0; i<pixel.numPixels(); i++) { //clear all pixels before displaying new animation
           pixel.setPixelColor(i, pixel.Color(0,0,0));
         }
-     flashRandom(5,random(10,30));
+     flashRandom(1,random(10,30));
      pixel.show(); // This sends the updated pixel color to the hardware.
    }
 
@@ -366,6 +418,10 @@ void loop(void)
     pixel.show(); // This sends the updated pixel color to the hardware.
   }
 
+  if (animationState == 14){
+    rgb();
+  }
+  
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);
@@ -376,11 +432,13 @@ void loop(void)
 // Functions
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<pixel.numPixels(); i++) {
-      pixel.setPixelColor(i, c);
-      pixel.show();
+  Serial.println("  color wipe -> start");
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, c);
+      strip.show();
       delay(wait);
   }
+  Serial.println("  color wipe -> complete");  
 }
 
 void larsonScanner(uint8_t wait){
@@ -444,81 +502,125 @@ void flashRandom(int wait, uint8_t howmany) {
   // LEDs will be off when done (they are faded to 0)
 }
 
+void rainbowCycle(uint8_t wait) {
+  Serial.println("  rainbowCycle -> start");
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+  Serial.println("  rainbowCycle -> complete");  
+}
+
 void rainbow(uint8_t wait) {
+  Serial.println("  rainbow -> start");         
   uint16_t i, j;
 
   for(j=0; j<256; j++) {
-    for(i=0; i<pixel.numPixels(); i++) {
-      pixel.setPixelColor(i, Wheel((i+j) & 255));
+    for(i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel((i+j) & 255));
     }
-    pixel.show();
+    strip.show();
     delay(wait);
   }
+  Serial.println("  rainbow -> complete");  
 }
 
 // Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
+  Serial.println("  rainbowCycle -> start");
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< pixel.numPixels(); i++) {
-      pixel.setPixelColor(i, Wheel(((i * 256 / pixel.numPixels()) + j) & 255));
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
     }
-    pixel.show();
+    strip.show();
     delay(wait);
   }
+  Serial.println("  rainbowCycle -> complete");  
 }
 
 //Theatre-style crawling lights.
 void theaterChase(uint32_t c, uint8_t wait) {
+  Serial.println("  theaterChase -> start");
   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
     for (int q=0; q < 3; q++) {
-      for (int i=0; i < pixel.numPixels(); i=i+3) {
-        pixel.setPixelColor(i+q, c);    //turn every third pixel on
+      for (int i=0; i < strip.numPixels(); i=i+3) {
+        strip.setPixelColor(i+q, c);    //turn every third pixel on
       }
-      pixel.show();
+      strip.show();
 
       delay(wait);
 
-      for (int i=0; i < pixel.numPixels(); i=i+3) {
-        pixel.setPixelColor(i+q, 0);        //turn every third pixel off
+      for (int i=0; i < strip.numPixels(); i=i+3) {
+        strip.setPixelColor(i+q, 0);        //turn every third pixel off
       }
     }
   }
+  Serial.println("  theaterChase -> complete");  
 }
 
 //Theatre-style crawling lights with rainbow effect
 void theaterChaseRainbow(uint8_t wait) {
+  Serial.println("  theaterChaseRainbow -> start");
   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
     for (int q=0; q < 3; q++) {
-      for (int i=0; i < pixel.numPixels(); i=i+3) {
-        pixel.setPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
-      }
-      pixel.show();
+        for (int i=0; i < strip.numPixels(); i=i+3) {
+          strip.setPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
+        }
+        strip.show();
 
-      delay(wait);
+        delay(wait);
 
-      for (int i=0; i < pixel.numPixels(); i=i+3) {
-        pixel.setPixelColor(i+q, 0);        //turn every third pixel off
-      }
+        for (int i=0; i < strip.numPixels(); i=i+3) {
+          strip.setPixelColor(i+q, 0);        //turn every third pixel off
+        }
     }
   }
+  Serial.println("  theaterChaseRainbow -> complete");  
 }
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if(WheelPos < 85) {
-    return pixel.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+// For RGB LED strips
+void rgb() {
+    int r, g, b;
+ 
+  // fade from blue to violet
+  for (r = 0; r < 256; r++) { 
+    analogWrite(REDPIN, r);
+    delay(FADESPEED);
+  } 
+  // fade from violet to red
+  for (b = 255; b > 0; b--) { 
+    analogWrite(BLUEPIN, b);
+    delay(FADESPEED);
+  } 
+  // fade from red to yellow
+  for (g = 0; g < 256; g++) { 
+    analogWrite(GREENPIN, g);
+    delay(FADESPEED);
+  } 
+  // fade from yellow to green
+  for (r = 255; r > 0; r--) { 
+    analogWrite(REDPIN, r);
+    delay(FADESPEED);
+  } 
+  // fade from green to teal
+  for (b = 0; b < 256; b++) { 
+    analogWrite(BLUEPIN, b);
+    delay(FADESPEED);
+  } 
+  // fade from teal to blue
+  for (g = 255; g > 0; g--) { 
+    analogWrite(GREENPIN, g);
+    delay(FADESPEED);
   }
-  if(WheelPos < 170) {
-    WheelPos -= 85;
-    return pixel.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-  WheelPos -= 170;
-  return pixel.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
+
 /**************************************************************************/
 /*!
     @brief  Checks for user input (via the Serial Monitor)
@@ -607,6 +709,7 @@ void listen() {
 
 // Input a value 0 to 255 to get a color value.
 // The colors are a transition r - g - b - back to r.
+/**
 uint32_t Wheel(byte WheelPos) {
   if(WheelPos < 85) {
    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
@@ -618,3 +721,4 @@ uint32_t Wheel(byte WheelPos) {
    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
 }
+**/

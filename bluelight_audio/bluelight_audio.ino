@@ -25,12 +25,12 @@ This paragraph must be included in any redistribution.
 
 #include <Adafruit_NeoPixel.h>
 
-#define N_PIXELS  60  // Number of pixels in strand
-#define MIC_PIN   A0  // Microphone is attached to this analog pin
+#define N_PIXELS  91  // Number of pixels in strand
+#define MIC_PIN   A1  // Microphone is attached to this analog pin
 #define LED_PIN    6  // NeoPixel LED strand is connected to this pin
 #define DC_OFFSET  0  // DC offset in mic signal - if unusure, leave 0
 #define NOISE     10  // Noise/hum/interference in mic signal
-#define SAMPLES   60  // Length of buffer for dynamic level adjustment
+#define SAMPLES   30  // Length of buffer for dynamic level adjustment
 #define TOP       (N_PIXELS + 2) // Allow dot to go slightly off scale
 #define PEAK_FALL 40  // Rate of peak falling dot
 

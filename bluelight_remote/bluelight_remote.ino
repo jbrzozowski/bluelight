@@ -1,9 +1,11 @@
 /*********************************************************************
- This is an example for our nRF51822 based Bluefruit LE modules
+Project:blueligh
+Author:John Jason Brzozowski
+Email:jjmb@jjmb.com
 
- MIT license, check LICENSE for more information
- All text above, and the splash screen below must be included in
- any redistribution
+MIT license, check LICENSE for more information
+All text above, and the splash screen below must be included in
+any redistribution
 *********************************************************************/
 
 #include <string.h>

@@ -291,65 +291,49 @@ void loop(void)
 // Light control mode routines
   Serial.print("animationState = ");
   Serial.println(animationState);
+// New control processing
   if (animationState == 0){
-    strip.begin(); // This initializes the NeoPixel library.
-    for(uint8_t i=0; i<N_PIXELS; i++) {
-      strip.setPixelColor(i, strip.Color(0,0,0)); // off
-    }
+    off();
+    strip.show();
    }
 
-   if (animationState == 1){
-     colorWipe(strip.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-     colorWipe(strip.Color(0, 0, 0), 20);
-     strip.show();
-    }
-
-  if (animationState == 11){
-    colorWipe(strip.Color(255, 0, 0), DELAY); // Red
-    colorWipe(strip.Color(0, 255, 0), DELAY); // Green
-    colorWipe(strip.Color(0, 0, 255), DELAY); // Blue
-    /**
-    for(uint16_t i=0; i<strip.numPixels(); i++) { //clear all pixels before displaying new animation
-          Serial.println("animation state = 11a");
-          Serial.print(strip.numPixels());
-          strip.setPixelColor(i, strip.Color(0,0,0));
-        }
-    Serial.println("animation state = 11b");
-    Serial.print(red);
-    Serial.print(green);
-    Serial.print(blue);
-    colorWipe(strip.Color(red, green, blue), 20);
-    // strip.show(); // This sends the updated pixel color to the hardware.
-    // colorWipe(strip.Color(0, 0, 0), 20);
+  if (animationState == 8){
+    // @todo update color to blue
+    colorWipe(strip.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
+    colorWipe(strip.Color(0, 0, 0), 20);
     strip.show();
-    **/
   }
 
-  if (animationState == 13){
-    for(uint16_t i=0; i<strip.numPixels(); i++) { //clear all pixels before displaying new animation
-          strip.setPixelColor(i, strip.Color(0,0,0));
-        }
-    rainbowCycle(20);
-    strip.show(); // This sends the updated pixel color to the hardware.
+  if (animationState == 16){
+    // @todo update color to red
+    colorWipe(strip.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
+    colorWipe(strip.Color(0, 0, 0), 20);
+    strip.show();
   }
 
-  if (animationState == 14){
+  if (animationState == 32){
+    // @todo update color to rainbow
     rainbow(DELAY);
+    strip.show();
   }
 
-  if (animationState == 15){
+  if (animationState == 128){
+    // @todo update color to listered
+    rainbowCycle(DELAY);
+    strip.show();
+  }
+
+  if (animationState == 136){
+    // @todo update color to listeblue
     theaterChaseRainbow(DELAY);
+    strip.show();
   }
-  /**
-  if (animationState == 15){
-    theaterChase();
-  }
-  **/
 
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);
-  digitalWrite(BOARD_PIN, LOW);    // turn the LED off by making the voltage LOW
+  // turn the LED off by making the voltage LOW
+  digitalWrite(BOARD_PIN, LOW);
   // delay(1000);              // wait for a second
   ble.waitForOK();
 }
@@ -370,6 +354,13 @@ uint32_t Wheel(byte WheelPos) {
 }
 
 // Low level LED control functions
+void off() {
+  // This initializes the NeoPixel library
+  strip.begin();
+  for(uint8_t i=0; i<N_PIXELS; i++) {
+    strip.setPixelColor(i, strip.Color(0,0,0)); // off
+  }
+}
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   Serial.println("  color wipe -> start");

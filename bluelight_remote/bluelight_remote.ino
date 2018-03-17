@@ -287,6 +287,7 @@ void loop(void)
 // Light control mode routines
   Serial.print("animationState = ");
   Serial.println(animationState);
+
 // New control processing
   if (animationState == 0){
     off();
@@ -535,6 +536,7 @@ void test(uint8_t wait) {
 
 // Low level routines for listening and adapting to audio
 void listen() {
+  // @todo - need to add support for accepting color as an argument
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;

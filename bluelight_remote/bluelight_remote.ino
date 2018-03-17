@@ -342,7 +342,9 @@ void loop(void)
   }
 
   if (animationState == 88){
-    theaterChase(DELAY);
+    theaterChase(strip.Color(127, 127, 127), DELAY); // White
+    theaterChase(strip.Color(127,   0,   0), DELAY); // Red
+    theaterChase(strip.Color(  0,   0, 127), DELAY); // Blue
     strip.show();
   }
 

@@ -238,6 +238,18 @@ void loop(void)
       Serial.println("Setting animationState = rainbow");
       animationState = 32;
   }
+  if (strcmp(ble.buffer, "wipeblue") == 0) {
+      Serial.println("Setting animationState = wipeblue");
+      animationState = 40;
+  }
+  if (strcmp(ble.buffer, "wipered") == 0) {
+      Serial.println("Setting animationState = wipered");
+      animationState = 48;
+  }
+  if (strcmp(ble.buffer, "wipewhite") == 0) {
+      Serial.println("Setting animationState = wipewhite");
+      animationState = 56;
+  }
   if (strcmp(ble.buffer, "listenred") == 0) {
       Serial.println("Setting animationState = listenred");
       animationState = 128;
@@ -273,6 +285,24 @@ void loop(void)
   if (animationState == 32){
     // @todo update color to rainbow
     rainbow(DELAY);
+    strip.show();
+  }
+
+  if (animationState == 40){
+    colorWipe(strip.Color(0,0,255), DELAY);
+    colorWipe(strip.Color(0, 0, 0), DELAY);
+    strip.show();
+  }
+
+  if (animationState == 48){
+    colorWipe(strip.Color(0,255,0), DELAY);
+    colorWipe(strip.Color(0, 0, 0), DELAY);
+    strip.show();
+  }
+
+  if (animationState == 56){
+    colorWipe(strip.Color(255,0,0), DELAY);
+    colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();
   }
 

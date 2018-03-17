@@ -1,12 +1,6 @@
 /*********************************************************************
  This is an example for our nRF51822 based Bluefruit LE modules
 
- Pick one up today in the adafruit shop!
-
- Adafruit invests time and resources providing this open source code,
- please support Adafruit and open-source hardware by purchasing
- products from Adafruit!
-
  MIT license, check LICENSE for more information
  All text above, and the splash screen below must be included in
  any redistribution
@@ -32,6 +26,8 @@
 
 #include <Adafruit_NeoPixel.h>
 
+// BLE and Bluetooth variable and object definitions
+// @brief  Sets up the HW an the BLE module (this function is called automatically on startup)
 // Using strip instead, below is for NeoPixel pixel object
 // Adafruit_NeoPixel pixel = Adafruit_NeoPixel(N_PIXELS, PIN);
 
@@ -47,72 +43,14 @@ Adafruit_BluefruitLE_UART ble(bluefruitSS, BLUEFRUIT_UART_MODE_PIN,
 // Adafruit_BluefruitLE_UART ble(Serial1, BLUEFRUIT_UART_MODE_PIN);
 
 /* ...hardware SPI, using SCK/MOSI/MISO hardware SPI pins and then user selected CS/IRQ/RST */
-Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
 /* ...software SPI, using SCK/MOSI/MISO user-defined SPI pins and then user selected CS/IRQ/RST */
 //Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_SCK, BLUEFRUIT_SPI_MISO,
 //                             BLUEFRUIT_SPI_MOSI, BLUEFRUIT_SPI_CS,
 //                             BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
+Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
-
-// A small helper
-void error(const __FlashStringHelper*err) {
-  Serial.println(err);
-  while (1);
-}
-
-// function prototypes over in packetParser.cpp
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-/**
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if(WheelPos < 85) {
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  if(WheelPos < 170) {
-    WheelPos -= 85;
-    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-  WheelPos -= 170;
-  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-}
-**/
-
-uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout);
-float parsefloat(uint8_t *buffer);
-void printHex(const uint8_t * data, const uint32_t numBytes);
-
-// the packet buffer
-extern uint8_t packetbuffer[];
-
-/**************************************************************************/
-/*!
-    @brief  Sets up the HW an the BLE module (this function is called
-            automatically on startup)
-*/
-/**************************************************************************/
-//additional variables
-
-// Color definitions
-uint32_t blue = strip.Color(0,0,255);
-uint32_t red = strip.Color(0,255,0);
-uint8_t animationState = 0;
-uint8_t mode = 1;
-bool debug = false;
-
-// Added to support listen() via the microphone
-byte
-  peak      = 0,      // Used for falling dot
-  dotCount  = 0,      // Frame counter for delaying dot-falling speed
-  volCount  = 0;      // Frame counter for storing past volume data
-int
-  vol[SAMPLES],       // Collection of prior volume samples
-  lvl       = 10,      // Current "dampened" audio level
-  minLvlAvg = 0,      // For dynamic adjustment of graph low & high
-  maxLvlAvg = 512;
-
-// @todo - needs to be fixed
+// Adafruit NeoPixel variable and object definitions
 // Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
@@ -124,6 +62,32 @@ int
 // Adafruit_NeoPixel strip = Adafruit_NeoPixel(150, PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB);
 
+// Global variables
+uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout);
+float parsefloat(uint8_t *buffer);
+void printHex(const uint8_t * data, const uint32_t numBytes);
+// the packet buffer
+extern uint8_t packetbuffer[];
+uint8_t mode = 1;
+bool debug = false;
+
+// Color and animation state definitions
+uint32_t blue = strip.Color(0,0,255);
+uint32_t red = strip.Color(0,255,0);
+uint8_t animationState = 0;
+
+// Listening to audio to control LED definitions
+byte
+  peak      = 0,      // Used for falling dot
+  dotCount  = 0,      // Frame counter for delaying dot-falling speed
+  volCount  = 0;      // Frame counter for storing past volume data
+int
+  vol[SAMPLES],       // Collection of prior volume samples
+  lvl       = 10,      // Current "dampened" audio level
+  minLvlAvg = 0,      // For dynamic adjustment of graph low & high
+  maxLvlAvg = 512;
+
+// Setup
 void setup(void)
 {
   Serial.println("setup -> start");
@@ -552,4 +516,10 @@ bool getUserInput(char buffer[], uint8_t maxSize)
   } while( (count < maxSize) && (Serial.available()) );
 
   return true;
+}
+
+// error printing routine
+void error(const __FlashStringHelper*err) {
+  Serial.println(err);
+  while (1);
 }

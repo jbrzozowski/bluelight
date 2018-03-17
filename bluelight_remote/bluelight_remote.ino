@@ -95,9 +95,8 @@ extern uint8_t packetbuffer[];
 //additional variables
 
 // Color definitions
-uint8_t red = 100;
-uint8_t green = 100;
-uint8_t blue = 100;
+uint32_t blue = strip.Color(0,0,255);
+uint32_t red = strip.Color(0,255,0);
 uint8_t animationState = 0;
 uint8_t mode = 1;
 bool debug = false;
@@ -298,16 +297,12 @@ void loop(void)
    }
 
   if (animationState == 8){
-    strip.Color(0,0,255);
-    // colorWipe(strip.Color(0,0,255), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-    // colorWipe(strip.Color(0, 0, 0), 20);
+    solidColor(blue);
     strip.show();
   }
 
   if (animationState == 16){
-    strip.Color(0,255,0);
-    // colorWipe(strip.Color(0,255,0), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-    // colorWipe(strip.Color(0, 0, 0), 20);
+    solidColor(red);
     strip.show();
   }
 
@@ -367,6 +362,18 @@ void off() {
     strip.setPixelColor(i, strip.Color(0,0,0)); // off
   }
 }
+
+// Fill the dots one after the other with a color
+void solidColor(uint32_t c, uint8_t wait) {
+  Serial.println("  solid color -> start");
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, c);
+      strip.show();
+      delay(wait);
+  }
+  Serial.println("  solid color -> complete");
+}
+
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   Serial.println("  color wipe -> start");

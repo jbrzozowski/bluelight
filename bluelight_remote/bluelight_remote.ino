@@ -254,6 +254,21 @@ void loop(void)
       Serial.println("Setting animationState = wipegreen");
       animationState = 64;
   }
+  if (strcmp(ble.buffer, "rainbowcycle") == 0) {
+      Serial.println("Setting animationState = rainbowcycle");
+      animationState = 72;
+  }
+
+  if (strcmp(ble.buffer, "rainbowtheater") == 0) {
+      Serial.println("Setting animationState = rainbowtheater");
+      animationState = 80;
+  }
+
+  if (strcmp(ble.buffer, "theaterchase") == 0) {
+      Serial.println("Setting animationState = theaterchase");
+      animationState = 88;
+  }
+
   if (strcmp(ble.buffer, "listenred") == 0) {
       Serial.println("Setting animationState = listenred");
       animationState = 128;
@@ -316,15 +331,30 @@ void loop(void)
     strip.show();
   }
 
+  if (animationState == 72){
+    rainbowCycle(DELAY);
+    strip.show();
+  }
+
+  if (animationState == 80){
+    theaterChaseRainbow(DELAY);
+    strip.show();
+  }
+
+  if (animationState == 88){
+    theaterChase(DELAY);
+    strip.show();
+  }
+
   if (animationState == 128){
     // @todo update color to listered
-    rainbowCycle(DELAY);
+    test(DELAY);
     strip.show();
   }
 
   if (animationState == 136){
     // @todo update color to listeblue
-    theaterChaseRainbow(DELAY);
+    test(DELAY);
     strip.show();
   }
 
@@ -371,7 +401,9 @@ void off() {
 void solidColor(uint32_t c, uint8_t wait) {
   Serial.println("  solid color -> start");
   for(uint16_t i=0; i<strip.numPixels(); i++) {
-      Serial.println("  solid color -> for_top");
+      Serial.println("  solid color -> for_top -> number_of_pixels/i");
+      Serial.println(strip.numPixels());
+      Serial.println(i);
       strip.setPixelColor(i, c);
       Serial.println("  solid color -> set_pixel_color");
       strip.show();
@@ -399,7 +431,12 @@ void rainbow(uint8_t wait) {
 
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
+      Serial.println("  rainbow -> for_top  -> number_of_pixels/i/j");
+      Serial.println(strip.numPixels());
+      Serial.println(i);
+      Serial.println(j);
       strip.setPixelColor(i, Wheel((i+j) & 255));
+      Serial.println("  rainbow -> for_bottom");
     }
     strip.show();
     delay(wait);
@@ -414,7 +451,12 @@ void rainbowCycle(uint8_t wait) {
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
+      Serial.println("  rainbowCycle -> for_top  -> number_of_pixels/i/j");
+      Serial.println(strip.numPixels());
+      Serial.println(i);
+      Serial.println(j);
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+      Serial.println("  rainbowCycle -> for_bottom");
     }
     strip.show();
     delay(wait);
@@ -428,7 +470,13 @@ void theaterChase(uint32_t c, uint8_t wait) {
   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
     for (int q=0; q < 3; q++) {
       for (int i=0; i < strip.numPixels(); i=i+3) {
+        Serial.println("  theaterChase -> for_top  -> number_of_pixels/i/j/q");
+        Serial.println(strip.numPixels());
+        Serial.println(i);
+        Serial.println(j);
+        Serial.println(q);
         strip.setPixelColor(i+q, c);    //turn every third pixel on
+        Serial.println("  theaterChase -> for_bottom");
       }
       strip.show();
 

@@ -371,9 +371,13 @@ void off() {
 void solidColor(uint32_t c, uint8_t wait) {
   Serial.println("  solid color -> start");
   for(uint16_t i=0; i<strip.numPixels(); i++) {
+      Serial.println("  solid color -> for_top");
       strip.setPixelColor(i, c);
+      Serial.println("  solid color -> set_pixel_color");
       strip.show();
+      Serial.println("  solid color -> strip_show");
       delay(wait);
+      Serial.println("  solid color -> for_bottom");
   }
   Serial.println("  solid color -> complete");
 }

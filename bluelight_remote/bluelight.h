@@ -120,7 +120,7 @@ This paragraph must be included in any redistribution.
     #define MODE_LED_BEHAVIOUR          "MODE"
     #define LED_PIN                       6
     #define BOARD_PIN                     13  // NeoPixel LED strand is connected to this pin
-    #define N_PIXELS                      91
+    #define N_PIXELS                      73
     #define MIC_PIN                       A1
     // Added to support RGB LED strips
     #define REDPIN                        11
@@ -131,5 +131,5 @@ This paragraph must be included in any redistribution.
     #define NOISE                         10  // Noise/hum/interference in mic signal
     #define SAMPLES                       60  // Length of buffer for dynamic level adjustment
     #define TOP                           (N_PIXELS + 2) // Allow dot to go slightly off scale
-    #define PEAK_FALL                     40  // Rate of peak falling dot    
+    #define PEAK_FALL                     40  // Rate of peak falling dot
 /*=========================================================================*/

@@ -250,6 +250,10 @@ void loop(void)
       Serial.println("Setting animationState = wipewhite");
       animationState = 56;
   }
+  if (strcmp(ble.buffer, "wipegreen") == 0) {
+      Serial.println("Setting animationState = wipegreen");
+      animationState = 64;
+  }
   if (strcmp(ble.buffer, "listenred") == 0) {
       Serial.println("Setting animationState = listenred");
       animationState = 128;
@@ -301,6 +305,12 @@ void loop(void)
   }
 
   if (animationState == 56){
+    colorWipe(strip.Color(127,127,127), DELAY);
+    colorWipe(strip.Color(0, 0, 0), DELAY);
+    strip.show();
+  }
+
+  if (animationState == 64){
     colorWipe(strip.Color(255,0,0), DELAY);
     colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();

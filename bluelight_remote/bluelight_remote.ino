@@ -94,15 +94,13 @@ extern uint8_t packetbuffer[];
 /**************************************************************************/
 //additional variables
 
-//Color
+// Color definitions
 uint8_t red = 100;
 uint8_t green = 100;
 uint8_t blue = 100;
 uint8_t animationState = 0;
 uint8_t mode = 1;
 bool debug = false;
-
-int pos = 0, dir = 1; // Position, direction of "eye" for larson scanner animation
 
 // Added to support listen() via the microphone
 byte
@@ -157,9 +155,8 @@ void setup(void)
   **/
 
   strip.begin();
-  // strip.setPixelColor(n, red, green, blue);  
-  strip.show(); // Initialize all pixels to 'off'
-  
+  // strip.setPixelColor(n, red, green, blue);
+
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Command Mode Example"));
   Serial.println(F("---------------------------------------"));
@@ -228,9 +225,9 @@ void setup(void)
   //  analogReference(EXTERNAL);
 
   memset(vol, 0, sizeof(vol));
-  // @todo - needs to be fixed
-  strip.begin();
-  Serial.println("setup -> complete");  
+  // Initialize all pixels to 'off'
+  strip.show();
+  Serial.println("setup -> complete");
 }
 
 /**************************************************************************/
@@ -247,7 +244,7 @@ void loop(void)
   Serial.println(animationState);
   // Check for user input
   char inputs[BUFSIZE+1];
-  
+
 /**
   if ( getUserInput(inputs, BUFSIZE) )
   {
@@ -273,64 +270,42 @@ void loop(void)
     Serial.print("Buffer = ");
     Serial.println(ble.buffer);
   }
+
   /**
   if (strcmp(ble.buffer, "OK") == 0) {
     // no data
     return;
   }
   **/
-// System control messages
+
+// Processing of control mode messages received over bluetooth
 // @todo - add a check for runtime setting of debug
-  if (strcmp(ble.buffer, "0") == 0) {
-      Serial.println("Setting animationState = 0");
+  if (strcmp(ble.buffer, "off") == 0) {
+      Serial.println("Setting animationState = off");
       animationState = 0;
   }
-  if (strcmp(ble.buffer, "1") == 0) {
-      Serial.println("Setting animationState = 1");
-      animationState = 1;
+  if (strcmp(ble.buffer, "blue") == 0) {
+      Serial.println("Setting animationState = blue");
+      animationState = 8;
   }
-  if (strcmp(ble.buffer, "2") == 0) {
-      Serial.println("Setting animationState = 2");
-      animationState = 2;
+  if (strcmp(ble.buffer, "red") == 0) {
+      Serial.println("Setting animationState = red");
+      animationState = 16;
   }
-  if (strcmp(ble.buffer, "3") == 0) {
-      Serial.println("Setting animationState = 3");
-      animationState = 3;
+  if (strcmp(ble.buffer, "rainbow") == 0) {
+      Serial.println("Setting animationState = rainbow");
+      animationState = 32;
   }
-  if (strcmp(ble.buffer, "4") == 0) {
-      Serial.println("Setting animationState = 4");
-      animationState = 4;
+  if (strcmp(ble.buffer, "listen") == 0) {
+      Serial.println("Setting animationState = listen");
+      animationState = 128;
   }
-  if (strcmp(ble.buffer, "5") == 0) {
-      Serial.println("Setting animationState = 5");
-      animationState = 5;
-  }
-  // Lighting control
-  if (strcmp(ble.buffer, "10") == 0) {
-      Serial.println("Setting animationState = 10");
-      animationState = 10;
-  }
-  if (strcmp(ble.buffer, "11") == 0) {
-      Serial.println("Setting animationState = 11");
-      animationState = 11;
-  }
-  if (strcmp(ble.buffer, "12") == 0) {
-      Serial.println("Setting animationState = 12");
-      animationState = 12;
-  }
-  if (strcmp(ble.buffer, "13") == 0) {
-      Serial.println("Setting animationState = 13");
-      animationState = 13;
-  }
-  if (strcmp(ble.buffer, "14") == 0) {
-      Serial.println("Setting animationState = 14");
-      animationState = 14;
-  }
-  if (strcmp(ble.buffer, "15") == 0) {
-      Serial.println("Setting animationState = 15");
-      animationState = 15;
+  if (strcmp(ble.buffer, "test") == 0) {
+      Serial.println("Setting animationState = test");
+      animationState = 255;
   }
 
+// Light control mode routines
   Serial.print("animationState = ");
   Serial.println(animationState);
   if (animationState == 0){
@@ -346,14 +321,6 @@ void loop(void)
      strip.show();
     }
 
-  if (animationState == 10){
-    for(uint16_t i=0; i<strip.numPixels(); i++) { //clear all pixels before displaying new animation
-          strip.setPixelColor(i, strip.Color(0,0,0));
-        }
-     flashRandom(1,random(10,30));
-     strip.show(); // This sends the updated pixel color to the hardware.
-   }
-
   if (animationState == 11){
     colorWipe(strip.Color(255, 0, 0), DELAY); // Red
     colorWipe(strip.Color(0, 255, 0), DELAY); // Green
@@ -367,20 +334,12 @@ void loop(void)
     Serial.println("animation state = 11b");
     Serial.print(red);
     Serial.print(green);
-    Serial.print(blue);    
+    Serial.print(blue);
     colorWipe(strip.Color(red, green, blue), 20);
     // strip.show(); // This sends the updated pixel color to the hardware.
     // colorWipe(strip.Color(0, 0, 0), 20);
     strip.show();
     **/
-  }
-
-  if (animationState == 12){
-    for(uint16_t i=0; i<strip.numPixels(); i++) { //clear all pixels before displaying new animation
-          strip.setPixelColor(i, strip.Color(0,0,0));
-        }
-    larsonScanner(15); // larsonScanner is set to red and does not take color input.
-    strip.show(); // This sends the updated pixel color to the hardware.
   }
 
   if (animationState == 13){
@@ -403,7 +362,7 @@ void loop(void)
     theaterChase();
   }
   **/
-  
+
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);
@@ -411,100 +370,36 @@ void loop(void)
   // delay(1000);              // wait for a second
   ble.waitForOK();
 }
-// Functions
+
+// Low level common routines
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  if(WheelPos < 85) {
+   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  } else if(WheelPos < 170) {
+   WheelPos -= 85;
+   return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+}
+
+// Low level LED control functions
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   Serial.println("  color wipe -> start");
   for(uint16_t i=0; i<strip.numPixels(); i++) {
-      Serial.print("  color wipe -> loop");    
-      Serial.println(strip.numPixels());
-      Serial.println(i);      
       strip.setPixelColor(i, c);
       strip.show();
-      delay(10);
-  }
-  Serial.println("  color wipe -> complete");  
-}
-
-void larsonScanner(uint8_t wait){
-   int j;
-
- for(uint16_t i=0; i<strip.numPixels()+5; i++) {
-  // Draw 5 pixels centered on pos.  setPixelColor() will clip any
-  // pixels off the ends of the strip, we don't need to watch for that.
-  strip.setPixelColor(pos - 2, 0x100000); // Dark red
-  strip.setPixelColor(pos - 1, 0x800000); // Medium red
-  strip.setPixelColor(pos    , 0xFF3000); // Center pixel is brightest
-  strip.setPixelColor(pos + 1, 0x800000); // Medium red
-  strip.setPixelColor(pos + 2, 0x100000); // Dark red
-
-  strip.show();
-  delay(wait);
-
-  // Rather than being sneaky and erasing just the tail pixel,
-  // it's easier to erase it all and draw a new one next time.
-  for(j=-2; j<= 2; j++) strip.setPixelColor(pos+j, 0);
-
-  // Bounce off ends of strip
-  pos += dir;
-  if(pos < 0) {
-    pos = 1;
-    dir = -dir;
-  } else if(pos >= strip.numPixels()) {
-    pos = strip.numPixels() - 2;
-    dir = -dir;
-  }
- }
-}
-
-void flashRandom(int wait, uint8_t howmany) {
- randomSeed(analogRead(0));
-  for(uint16_t i=0; i<howmany; i++) {
-    // get a random pixel from the list
-    int j = random(strip.numPixels());
-
-    // now we will 'fade' it in 5 steps
-    for (int x=0; x < 5; x++) {
-      int r = red * (x+1); r /= 5;
-      int g = green * (x+1); g /= 5;
-      int b = blue * (x+1); b /= 5;
-
-      strip.setPixelColor(j, strip.Color(r, g, b));
-      strip.show();
       delay(wait);
-    }
-    // & fade out in 5 steps
-    for (int x=5; x >= 0; x--) {
-      int r = red * x; r /= 5;
-      int g = green * x; g /= 5;
-      int b = blue * x; b /= 5;
-
-      strip.setPixelColor(j, strip.Color(r, g, b));
-      strip.show();
-      delay(wait);
-    }
   }
-  // LEDs will be off when done (they are faded to 0)
+  Serial.println("  color wipe -> complete");
 }
-
-/**
-void rainbowCycle(uint8_t wait) {
-  Serial.println("  rainbowCycle -> start");
-  uint16_t i, j;
-
-  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-    }
-    strip.show();
-    delay(wait);
-  }
-  Serial.println("  rainbowCycle -> complete");  
-}
-**/
 
 void rainbow(uint8_t wait) {
-  Serial.println("  rainbow -> start");         
+  Serial.println("  rainbow -> start");
   uint16_t i, j;
 
   for(j=0; j<256; j++) {
@@ -514,7 +409,7 @@ void rainbow(uint8_t wait) {
     strip.show();
     delay(wait);
   }
-  Serial.println("  rainbow -> complete");  
+  Serial.println("  rainbow -> complete");
 }
 
 // Slightly different, this makes the rainbow equally distributed throughout
@@ -529,7 +424,7 @@ void rainbowCycle(uint8_t wait) {
     strip.show();
     delay(wait);
   }
-  Serial.println("  rainbowCycle -> complete");  
+  Serial.println("  rainbowCycle -> complete");
 }
 
 //Theatre-style crawling lights.
@@ -549,7 +444,7 @@ void theaterChase(uint32_t c, uint8_t wait) {
       }
     }
   }
-  Serial.println("  theaterChase -> complete");  
+  Serial.println("  theaterChase -> complete");
 }
 
 //Theatre-style crawling lights with rainbow effect
@@ -569,77 +464,33 @@ void theaterChaseRainbow(uint8_t wait) {
         }
     }
   }
-  Serial.println("  theaterChaseRainbow -> complete");  
+  Serial.println("  theaterChaseRainbow -> complete");
 }
 
-// For RGB LED strips
-void rgb() {
-    int r, g, b;
- 
-  // fade from blue to violet
-  for (r = 0; r < 256; r++) { 
-    analogWrite(REDPIN, r);
-    delay(FADESPEED);
-  } 
-  // fade from violet to red
-  for (b = 255; b > 0; b--) { 
-    analogWrite(BLUEPIN, b);
-    delay(FADESPEED);
-  } 
-  // fade from red to yellow
-  for (g = 0; g < 256; g++) { 
-    analogWrite(GREENPIN, g);
-    delay(FADESPEED);
-  } 
-  // fade from yellow to green
-  for (r = 255; r > 0; r--) { 
-    analogWrite(REDPIN, r);
-    delay(FADESPEED);
-  } 
-  // fade from green to teal
-  for (b = 0; b < 256; b++) { 
-    analogWrite(BLUEPIN, b);
-    delay(FADESPEED);
-  } 
-  // fade from teal to blue
-  for (g = 255; g > 0; g--) { 
-    analogWrite(GREENPIN, g);
-    delay(FADESPEED);
-  }
+// Test routines that runs execute several lighting control modes
+void theaterChaseRainbow(uint8_t wait) {
+  Serial.println("  test -> start");
+  // Color wipe
+  colorWipe(strip.Color(255, 0, 0), DELAY); // Red
+  colorWipe(strip.Color(0, 255, 0), DELAY); // Green
+  colorWipe(strip.Color(0, 0, 255), DELAY); // Blue
+
+  // Send a theater pixel chase in...
+  theaterChase(strip.Color(127, 127, 127), DELAY); // White
+  theaterChase(strip.Color(127,   0,   0), DELAY); // Red
+  theaterChase(strip.Color(  0,   0, 127), DELAY); // Blue
+
+  rainbow(DELAY);
+  rainbowCycle(DELAY);
+  theaterChaseRainbow(DELAY);
+  Serial.println("  test -> complete");
 }
 
-/**************************************************************************/
-/*!
-    @brief  Checks for user input (via the Serial Monitor)
-*/
-/**************************************************************************/
-bool getUserInput(char buffer[], uint8_t maxSize)
-{
-  // timeout in 100 milliseconds
-  TimeoutTimer timeout(100);
-
-  memset(buffer, 0, maxSize);
-  while( (!Serial.available()) && !timeout.expired() ) { delay(1); }
-
-  if ( timeout.expired() ) return false;
-
-  delay(2);
-  uint8_t count=0;
-  do
-  {
-    count += Serial.readBytes(buffer+count, maxSize);
-    delay(2);
-  } while( (count < maxSize) && (Serial.available()) );
-
-  return true;
-}
-
+// Low level routines for listening and adapting to audio
 void listen() {
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;
-
-
 
   n   = analogRead(MIC_PIN);                        // Raw reading from mic
   n   = abs(n - 512 - DC_OFFSET); // Center on zero
@@ -694,17 +545,24 @@ void listen() {
     maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
 }
 
-// Input a value 0 to 255 to get a color value.
-// The colors are a transition r - g - b - back to r.
+// @brief  Checks for user input (via the Serial Monitor)
+bool getUserInput(char buffer[], uint8_t maxSize)
+{
+  // timeout in 100 milliseconds
+  TimeoutTimer timeout(100);
 
-uint32_t Wheel(byte WheelPos) {
-  if(WheelPos < 85) {
-   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  } else if(WheelPos < 170) {
-   WheelPos -= 85;
-   return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  } else {
-   WheelPos -= 170;
-   return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
+  memset(buffer, 0, maxSize);
+  while( (!Serial.available()) && !timeout.expired() ) { delay(1); }
+
+  if ( timeout.expired() ) return false;
+
+  delay(2);
+  uint8_t count=0;
+  do
+  {
+    count += Serial.readBytes(buffer+count, maxSize);
+    delay(2);
+  } while( (count < maxSize) && (Serial.available()) );
+
+  return true;
 }

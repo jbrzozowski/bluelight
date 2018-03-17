@@ -298,16 +298,16 @@ void loop(void)
    }
 
   if (animationState == 8){
-    // @todo update color to blue
-    colorWipe(strip.Color(0,0,255), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-    colorWipe(strip.Color(0, 0, 0), 20);
+    strip.Color(0,0,255);
+    // colorWipe(strip.Color(0,0,255), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
+    // colorWipe(strip.Color(0, 0, 0), 20);
     strip.show();
   }
 
   if (animationState == 16){
-    // @todo update color to red
-    colorWipe(strip.Color(255,0,0), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-    colorWipe(strip.Color(0, 0, 0), 20);
+    strip.Color(0,255,0);
+    // colorWipe(strip.Color(0,255,0), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
+    // colorWipe(strip.Color(0, 0, 0), 20);
     strip.show();
   }
 

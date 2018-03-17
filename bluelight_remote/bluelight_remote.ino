@@ -275,9 +275,13 @@ void loop(void)
       Serial.println("Setting animationState = rainbow");
       animationState = 32;
   }
-  if (strcmp(ble.buffer, "listen") == 0) {
-      Serial.println("Setting animationState = listen");
+  if (strcmp(ble.buffer, "listenred") == 0) {
+      Serial.println("Setting animationState = listenred");
       animationState = 128;
+  }
+  if (strcmp(ble.buffer, "listenblue") == 0) {
+      Serial.println("Setting animationState = listenblue");
+      animationState = 136;
   }
   if (strcmp(ble.buffer, "test") == 0) {
       Serial.println("Setting animationState = test");

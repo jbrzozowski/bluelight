@@ -329,6 +329,12 @@ void loop(void)
     strip.show();
   }
 
+  if (animationState == 255){
+    // @todo update color to listeblue
+    test(DELAY);
+    strip.show();
+  }
+
   Serial.println("loop() bottom");
   Serial.print("animationState = ");
   Serial.println(animationState);

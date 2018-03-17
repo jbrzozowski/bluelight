@@ -261,12 +261,12 @@ void loop(void)
    }
 
   if (animationState == 8){
-    solidColor(blue);
+    solidColor(blue, DELAY);
     strip.show();
   }
 
   if (animationState == 16){
-    solidColor(red);
+    solidColor(red, DELAY);
     strip.show();
   }
 

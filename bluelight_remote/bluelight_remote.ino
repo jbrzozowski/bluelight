@@ -130,28 +130,11 @@ void setup(void)
   Serial.println("setup -> start");
   // Configure pin for onboard LED blinking
   pinMode(BOARD_PIN, OUTPUT);
-  // Setup for RGB LED strip
-  // Commenting out since using Neopixel strip
-  /**
-  pinMode(REDPIN, OUTPUT);
-  pinMode(GREENPIN, OUTPUT);
-  pinMode(BLUEPIN, OUTPUT);
-  **/
+
   // Comment out to prevent the need to connect serially
   /**
   while (!Serial);  // required for Flora & Micro
   delay(500);
-  **/
-
-  // turn off neopixel
-  /*
-  pixel.begin(); // This initializes the NeoPixel library.
-  for(uint8_t i=0; i<N_PIXELS; i++) {
-    pixel.setPixelColor(i, pixel.Color(0,0,0)); // off
-  }
-  colorWipe(pixel.Color(100, 100, 100), 20); // do a quick colorWipe to show that the pixels are all working, even before Bluefruit connection established
-  colorWipe(pixel.Color(0, 0, 0), 20);
-  pixel.show();
   **/
 
   strip.begin();
@@ -230,11 +213,7 @@ void setup(void)
   Serial.println("setup -> complete");
 }
 
-/**************************************************************************/
-/*!
-    @brief  Constantly poll for new command or response data
-*/
-/**************************************************************************/
+// Main loop
 void loop(void)
 {
   digitalWrite(BOARD_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -468,7 +447,7 @@ void theaterChaseRainbow(uint8_t wait) {
 }
 
 // Test routines that runs execute several lighting control modes
-void theaterChaseRainbow(uint8_t wait) {
+void test(uint8_t wait) {
   Serial.println("  test -> start");
   // Color wipe
   colorWipe(strip.Color(255, 0, 0), DELAY); // Red

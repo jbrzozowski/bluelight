@@ -68,7 +68,6 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB);
 uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout);
 float parsefloat(uint8_t *buffer);
 void printHex(const uint8_t * data, const uint32_t numBytes);
-// the packet buffer
 extern uint8_t packetbuffer[];
 uint8_t mode = 1;
 bool debug = false;
@@ -102,9 +101,11 @@ void setup(void)
   delay(500);
   **/
 
+  // Strip setup
+  strip.setBrightness(BRIGHTNESS);
   strip.begin();
-  // strip.setPixelColor(n, red, green, blue);
 
+  // Serial setup
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Command Mode Example"));
   Serial.println(F("---------------------------------------"));
@@ -112,6 +113,7 @@ void setup(void)
   /* Initialise the module */
   Serial.print(F("Initialising the Bluefruit LE module: "));
 
+  // BLE setup
   if ( !ble.begin(VERBOSE_MODE) )
   {
     error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));

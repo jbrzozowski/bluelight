@@ -360,9 +360,10 @@ void loop(void) {
 
   if (animationState == 88){
     // theaterchase
-    theaterChase(strip.Color(127, 127, 127), DELAY); // White
-    theaterChase(strip.Color(127,   0,   0), DELAY); // Red
-    theaterChase(strip.Color(  0,   0, 127), DELAY); // Blue
+    theaterChase(strip.Color(127,127,127), DELAY); // White
+    theaterChase(strip.Color(127,0,0), DELAY); // Green
+    theaterChase(strip.Color(0,127,0), DELAY); // Red
+    theaterChase(strip.Color(0,0,127), DELAY); // Blue
     strip.show();
   }
 

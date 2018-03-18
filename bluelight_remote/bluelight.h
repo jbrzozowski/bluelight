@@ -82,9 +82,8 @@ This paragraph must be included in any redistribution.
 
 // #include <Adafruit_NeoPixel.h> // Included in the main .ino file
 
+// APPLICATION SETTINGS
 /*=========================================================================
-    APPLICATION SETTINGS
-
     FACTORYRESET_ENABLE       Perform a factory reset when running this sketch
    
                               Enabling this will put your Bluefruit LE module
@@ -132,4 +131,5 @@ This paragraph must be included in any redistribution.
     #define SAMPLES                       60  // Length of buffer for dynamic level adjustment
     #define TOP                           (N_PIXELS + 2) // Allow dot to go slightly off scale
     #define PEAK_FALL                     40  // Rate of peak falling dot
+    #define BRIGHTNESS                    64  // Brightness level for the entire LED strip
 /*=========================================================================*/

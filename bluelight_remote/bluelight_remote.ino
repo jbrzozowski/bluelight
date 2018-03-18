@@ -102,31 +102,34 @@ void setup(void)
   **/
 
   // Strip setup
+  Serial.println("setup -> setting brightness");
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
 
   // Serial setup
+  Serial.print(F("setup -> initialising serial communications"));
   Serial.begin(115200);
-  Serial.println(F("Adafruit Bluefruit Command Mode Example"));
-  Serial.println(F("---------------------------------------"));
+  Serial.println(F("setup -> Adafruit Bluefruit command mode"));
 
   /* Initialise the module */
-  Serial.print(F("Initialising the Bluefruit LE module: "));
+  Serial.print(F("setup -> initialising the Bluefruit LE module"));
 
   // BLE setup
   if ( !ble.begin(VERBOSE_MODE) )
   {
-    error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
+    log(F("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
   }
   Serial.println( F("OK!") );
 
   if ( FACTORYRESET_ENABLE )
   {
     /* Perform a factory reset to make sure everything is in a known state */
-    Serial.println(F("Performing a factory reset: "));
+    Serial.println(F("setup -> Performing a factory reset: "));
     if ( ! ble.factoryReset() ){
-      error(F("Couldn't factory reset"));
+      log(F("setup -> Couldn't factory reset"));
     }
+  } else {
+    Serial.print(F("setup -> factory reset disabled"));
   }
 
   // Enable/Disable command echo from Bluefruit
@@ -136,12 +139,13 @@ void setup(void)
     ble.echo(false);
   }
 
-  Serial.println("Requesting Bluefruit info:");
+  Serial.println("setup -> Requesting Bluefruit info:");
   /* Print Bluefruit information */
   ble.info();
+  Serial.print(ble.info());
 
-  Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
-  Serial.println(F("Then Enter characters to send to Bluefruit"));
+  Serial.println(F("setup -> Please use Adafruit Bluefruit LE app to connect in UART mode"));
+  Serial.println(F("setup -> Then Enter characters to send to Bluefruit"));
   Serial.println();
 
   // Enable/Disable Bluefruit verbosity
@@ -160,11 +164,9 @@ void setup(void)
   if ( ble.isVersionAtLeast(MINIMUM_FIRMWARE_VERSION) )
   {
     // Change Mode LED Activity
-    Serial.println(F("******************************"));
-    Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
+    Serial.println(F("setup -> Change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
     ble.sendCommandCheckOK("AT+GAPDEVNAME=JEDI");
-    Serial.println(F("******************************"));
   }
 
   // Added to support listen() via the microphone
@@ -181,13 +183,12 @@ void setup(void)
 }
 
 // Main loop
-void loop(void)
-{
+void loop(void) {
   digitalWrite(BOARD_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   // delay(1000);              // wait for a second
-  Serial.println("loop() top");
-  Serial.print("animationState = ");
-  Serial.println(animationState);
+  log(F("loop -> top"));
+  log(F("loop -> animationState = "));
+  log(F(animationState));
   // Check for user input
   char inputs[BUFSIZE+1];
 
@@ -212,10 +213,8 @@ void loop(void)
   ble.println("AT+BLEUARTRX");
   ble.readline();
   // Control for BLE buffer debug
-  if (debug) {
-    Serial.print("Buffer = ");
-    Serial.println(ble.buffer);
-  }
+  log(F("loop -> Buffer = "));
+  log(F(ble.buffer));
 
   /**
   if (strcmp(ble.buffer, "OK") == 0) {
@@ -227,126 +226,140 @@ void loop(void)
 // Processing of control mode messages received over bluetooth
 // @todo - add a check for runtime setting of debug
   if (strcmp(ble.buffer, "off") == 0) {
-      Serial.println("Setting animationState = off");
+      log(F("loop -> setting animationState = off"));
       animationState = 0;
   }
   if (strcmp(ble.buffer, "blue") == 0) {
-      Serial.println("Setting animationState = blue");
+      log(F("loop -> setting animationState = blue"));
       animationState = 8;
   }
   if (strcmp(ble.buffer, "red") == 0) {
-      Serial.println("Setting animationState = red");
+      log(F("loop -> setting animationState = red"));
       animationState = 16;
   }
   if (strcmp(ble.buffer, "rainbow") == 0) {
-      Serial.println("Setting animationState = rainbow");
+      log(F("loop -> setting animationState = rainbow"));
       animationState = 32;
   }
   if (strcmp(ble.buffer, "wipeblue") == 0) {
-      Serial.println("Setting animationState = wipeblue");
+      log(F("loop -> setting animationState = wipeblue"));
       animationState = 40;
   }
   if (strcmp(ble.buffer, "wipered") == 0) {
-      Serial.println("Setting animationState = wipered");
+      log(F("loop -> setting animationState = wipered"));
       animationState = 48;
   }
   if (strcmp(ble.buffer, "wipewhite") == 0) {
-      Serial.println("Setting animationState = wipewhite");
+      log(F("loop -> setting animationState = wipewhite"));
       animationState = 56;
   }
   if (strcmp(ble.buffer, "wipegreen") == 0) {
-      Serial.println("Setting animationState = wipegreen");
+      log(F("loop -> setting animationState = wipegreen"));
       animationState = 64;
   }
   if (strcmp(ble.buffer, "rainbowcycle") == 0) {
-      Serial.println("Setting animationState = rainbowcycle");
+      log(F("loop -> setting animationState = rainbowcycle"));
       animationState = 72;
   }
 
   if (strcmp(ble.buffer, "rainbowtheater") == 0) {
-      Serial.println("Setting animationState = rainbowtheater");
+      log(F("loop -> setting animationState = rainbowtheater"));
       animationState = 80;
   }
 
   if (strcmp(ble.buffer, "theaterchase") == 0) {
-      Serial.println("Setting animationState = theaterchase");
+      log(F("loop -> setting animationState = theaterchase"));
       animationState = 88;
   }
 
   if (strcmp(ble.buffer, "listenred") == 0) {
-      Serial.println("Setting animationState = listenred");
+      log(F("loop -> setting animationState = listenred"));
       animationState = 128;
   }
   if (strcmp(ble.buffer, "listenblue") == 0) {
-      Serial.println("Setting animationState = listenblue");
+      log(F("loop -> setting animationState = listenblue"));
       animationState = 136;
   }
   if (strcmp(ble.buffer, "test") == 0) {
-      Serial.println("Setting animationState = test");
+      log(F("loop -> setting animationState = test"));
       animationState = 255;
+  }
+  if (strcmp(ble.buffer, "debug") == 0) {
+      log(F("loop -> setting debug"));
+      debug = true;
   }
 
 // Light control mode routines
-  Serial.print("animationState = ");
-  Serial.println(animationState);
+  log(F("loop -> animationState = "));
+  log(F(animationState));
 
 // New control processing
   if (animationState == 0){
+    // off
     off();
     strip.show();
    }
 
   if (animationState == 8){
+    // blue
     solidColor(blue, DELAY);
     strip.show();
   }
 
   if (animationState == 16){
+    // red
     solidColor(red, DELAY);
     strip.show();
   }
 
   if (animationState == 32){
-    // @todo update color to rainbow
+    // rainbow
     rainbow(DELAY);
     strip.show();
   }
 
   if (animationState == 40){
+    // wipeblue
     colorWipe(strip.Color(0,0,255), DELAY);
     colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();
   }
 
   if (animationState == 48){
+    // wipered
     colorWipe(strip.Color(0,255,0), DELAY);
     colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();
   }
 
   if (animationState == 56){
+    // wipewhite
     colorWipe(strip.Color(127,127,127), DELAY);
     colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();
   }
 
   if (animationState == 64){
+    // wipegreen
     colorWipe(strip.Color(255,0,0), DELAY);
     colorWipe(strip.Color(0, 0, 0), DELAY);
     strip.show();
   }
 
   if (animationState == 72){
+    // rainbow cycle
     rainbowCycle(DELAY);
     strip.show();
   }
 
   if (animationState == 80){
+    // rainbowtheater
     theaterChaseRainbow(DELAY);
     strip.show();
   }
 
   if (animationState == 88){
+    // theaterchase
     theaterChase(strip.Color(127, 127, 127), DELAY); // White
     theaterChase(strip.Color(127,   0,   0), DELAY); // Red
     theaterChase(strip.Color(  0,   0, 127), DELAY); // Blue
@@ -354,26 +367,26 @@ void loop(void)
   }
 
   if (animationState == 128){
-    // @todo update color to listered
+    // listenred
     test(DELAY);
     strip.show();
   }
 
   if (animationState == 136){
-    // @todo update color to listeblue
+    // listenblue
     test(DELAY);
     strip.show();
   }
 
   if (animationState == 255){
-    // @todo update color to listeblue
+    // test
     test(DELAY);
     strip.show();
   }
 
-  Serial.println("loop() bottom");
-  Serial.print("animationState = ");
-  Serial.println(animationState);
+  log(F("loop -> bottom"));
+  log(F("loop -> animationState = "));
+  log(F(animationState));
   // turn the LED off by making the voltage LOW
   digitalWrite(BOARD_PIN, LOW);
   // delay(1000);              // wait for a second
@@ -619,7 +632,9 @@ bool getUserInput(char buffer[], uint8_t maxSize)
 }
 
 // error printing routine
-void error(const __FlashStringHelper*err) {
-  Serial.println(err);
-  while (1);
+void log(const __FlashStringHelper*err) {
+  if(debug) {
+    Serial.println(err);
+    while (1);
+  }
 }

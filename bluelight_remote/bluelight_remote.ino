@@ -70,11 +70,13 @@ float parsefloat(uint8_t *buffer);
 void printHex(const uint8_t * data, const uint32_t numBytes);
 extern uint8_t packetbuffer[];
 uint8_t mode = 1;
-bool debug = false;
+bool debug = true;
 
 // Color and animation state definitions
 uint32_t blue = strip.Color(0,0,255);
 uint32_t red = strip.Color(0,255,0);
+uint32_t green = strip.Color(255,0,0);
+uint32_t white = strip.Color(255,255,255);
 uint8_t animationState = 0;
 
 // Listening to audio to control LED definitions
@@ -142,7 +144,7 @@ void setup(void)
   Serial.println("setup -> Requesting Bluefruit info:");
   /* Print Bluefruit information */
   ble.info();
-  Serial.print(ble.info());
+  // Serial.print(ble.info());
 
   Serial.println(F("setup -> Please use Adafruit Bluefruit LE app to connect in UART mode"));
   Serial.println(F("setup -> Then Enter characters to send to Bluefruit"));
@@ -190,7 +192,7 @@ void loop(void) {
   log(F("loop -> animationState = "));
   log(F(animationState));
   // Check for user input
-  char inputs[BUFSIZE+1];
+  // char inputs[BUFSIZE+1];
 
 /**
   if ( getUserInput(inputs, BUFSIZE) )
@@ -286,7 +288,7 @@ void loop(void) {
   }
   if (strcmp(ble.buffer, "debug") == 0) {
       log(F("loop -> setting debug"));
-      debug = true;
+      debug = false;
   }
 
 // Light control mode routines
@@ -360,10 +362,10 @@ void loop(void) {
 
   if (animationState == 88){
     // theaterchase
-    theaterChase(strip.Color(127,127,127), DELAY); // White
-    theaterChase(strip.Color(127,0,0), DELAY); // Green
-    theaterChase(strip.Color(0,127,0), DELAY); // Red
-    theaterChase(strip.Color(0,0,127), DELAY); // Blue
+    theaterChase(white, DELAY); // White
+    theaterChase(green, DELAY); // Green
+    theaterChase(red, DELAY); // Red
+    theaterChase(blue, DELAY); // Blue
     strip.show();
   }
 
@@ -636,6 +638,6 @@ bool getUserInput(char buffer[], uint8_t maxSize)
 void log(const __FlashStringHelper*err) {
   if(debug) {
     Serial.println(err);
-    while (1);
+    // while (1);
   }
 }

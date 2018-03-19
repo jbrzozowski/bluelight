@@ -1,5 +1,5 @@
 /*********************************************************************
-Project:blueligh
+Project:bluelight
 Author:John Jason Brzozowski
 Email:jjmb@jjmb.com
 
@@ -191,7 +191,7 @@ void loop(void) {
   // delay(1000);              // wait for a second
   log(F("loop -> top"));
   log(F("loop -> animationState = "));
-  log(F(animationState));
+  log(F(String(animationState)));
   // Check for user input
   // char inputs[BUFSIZE+1];
 
@@ -217,7 +217,7 @@ void loop(void) {
   ble.readline();
   // Control for BLE buffer debug
   log(F("loop -> Buffer = "));
-  log(F(ble.buffer));
+  log(F(String(ble.buffer)));
 
   /**
   if (strcmp(ble.buffer, "OK") == 0) {
@@ -302,7 +302,7 @@ void loop(void) {
 
 // Light control mode routines
   log(F("loop -> animationState = "));
-  log(F(animationState));
+  log(F(String(animationState)));
 
 // New control processing
   if (animationState == 0){
@@ -398,7 +398,7 @@ void loop(void) {
 
   log(F("loop -> bottom"));
   log(F("loop -> animationState = "));
-  log(F(animationState));
+  log(F(String(animationState)));
   // turn the LED off by making the voltage LOW
   digitalWrite(BOARD_PIN, LOW);
   // delay(1000);              // wait for a second
@@ -435,8 +435,8 @@ void solidColor(uint32_t c, uint8_t wait) {
   log(F("  solid color -> start"));
   for(uint16_t i=0; i<strip.numPixels(); i++) {
       log(F("  solid color -> for_top -> number_of_pixels/i"));
-      log(F(strip.numPixels()));
-      log(F(i));
+      log(F(String(strip.numPixels())));
+      log(F(String(i)));
       strip.setPixelColor(i, c);
       log(F("  solid color -> set_pixel_color"));
       strip.show();
@@ -465,9 +465,9 @@ void rainbow(uint8_t wait) {
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
       log(F("  rainbow -> for_top  -> number_of_pixels/i/j"));
-      log(F(strip.numPixels()));
-      log(F(i));
-      log(F(j));
+      log(F(String(strip.numPixels())));
+      log(F(String(i)));
+      log(F(String(j)));
       strip.setPixelColor(i, Wheel((i+j) & 255));
       log(F("  rainbow -> for_bottom"));
     }
@@ -484,9 +484,9 @@ void rainbowCycle(uint8_t wait) {
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
       log(F("  rainbowCycle -> for_top  -> number_of_pixels/i/j"));
-      log(F(strip.numPixels()));
-      log(F(i));
-      log(F(j));
+      log(F(String(strip.numPixels())));
+      log(F(String(i)));
+      log(F(String(j)));
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
       log(F("  rainbowCycle -> for_bottom"));
     }
@@ -502,10 +502,10 @@ void theaterChase(uint32_t c, uint8_t wait) {
     for (int q=0; q < 3; q++) {
       for (int i=0; i < strip.numPixels(); i=i+3) {
         log(F("  theaterChase -> for_top  -> number_of_pixels/i/j/q"));
-        log(F(strip.numPixels()));
-        log(F(i));
-        log(F(j));
-        log(F(q));
+        log(F(String(strip.numPixels())));
+        log(F(String(i)));
+        log(F(String(j)));
+        log(F(String(q)));
         strip.setPixelColor(i+q, c);    //turn every third pixel on
         log(F("  theaterChase -> for_bottom"));
       }

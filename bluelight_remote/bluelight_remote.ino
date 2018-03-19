@@ -77,6 +77,7 @@ uint32_t blue = strip.Color(0,0,255);
 uint32_t red = strip.Color(0,255,0);
 uint32_t green = strip.Color(255,0,0);
 uint32_t white = strip.Color(255,255,255);
+uint32_t black = strip.Color(0,0,0);
 uint8_t animationState = 0;
 
 // Listening to audio to control LED definitions
@@ -286,9 +287,17 @@ void loop(void) {
       log(F("loop -> setting animationState = test"));
       animationState = 255;
   }
-  if (strcmp(ble.buffer, "debug") == 0) {
+  if (strcmp(ble.buffer, "debugon") == 0) {
+      log(F("loop -> setting debug"));
+      debug = true;
+      ble.echo(true);
+      ble.verbose(true);
+  }
+  if (strcmp(ble.buffer, "debugoff") == 0) {
       log(F("loop -> setting debug"));
       debug = false;
+      ble.echo(false);
+      ble.verbose(false);
   }
 
 // Light control mode routines
@@ -299,65 +308,65 @@ void loop(void) {
   if (animationState == 0){
     // off
     off();
-    strip.show();
+    // strip.show();
    }
 
   if (animationState == 8){
     // blue
     solidColor(blue, DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 16){
     // red
     solidColor(red, DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 32){
     // rainbow
     rainbow(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 40){
     // wipeblue
-    colorWipe(strip.Color(0,0,255), DELAY);
-    colorWipe(strip.Color(0, 0, 0), DELAY);
-    strip.show();
+    colorWipe(blue, DELAY);
+    colorWipe(black, DELAY);
+    // strip.show();
   }
 
   if (animationState == 48){
     // wipered
-    colorWipe(strip.Color(0,255,0), DELAY);
-    colorWipe(strip.Color(0, 0, 0), DELAY);
-    strip.show();
+    colorWipe(red, DELAY);
+    colorWipe(black, DELAY);
+    // strip.show();
   }
 
   if (animationState == 56){
     // wipewhite
-    colorWipe(strip.Color(127,127,127), DELAY);
-    colorWipe(strip.Color(0, 0, 0), DELAY);
-    strip.show();
+    colorWipe(white, DELAY);
+    colorWipe(black, DELAY);
+    // strip.show();
   }
 
   if (animationState == 64){
     // wipegreen
-    colorWipe(strip.Color(255,0,0), DELAY);
-    colorWipe(strip.Color(0, 0, 0), DELAY);
-    strip.show();
+    colorWipe(green, DELAY);
+    colorWipe(black, DELAY);
+    // strip.show();
   }
 
   if (animationState == 72){
     // rainbow cycle
     rainbowCycle(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 80){
     // rainbowtheater
     theaterChaseRainbow(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 88){
@@ -366,25 +375,25 @@ void loop(void) {
     theaterChase(green, DELAY); // Green
     theaterChase(red, DELAY); // Red
     theaterChase(blue, DELAY); // Blue
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 128){
     // listenred
     test(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 136){
     // listenblue
     test(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   if (animationState == 255){
     // test
     test(DELAY);
-    strip.show();
+    // strip.show();
   }
 
   log(F("loop -> bottom"));
@@ -416,93 +425,91 @@ void off() {
   // This initializes the NeoPixel library
   strip.begin();
   for(uint8_t i=0; i<N_PIXELS; i++) {
-    strip.setPixelColor(i, strip.Color(0,0,0)); // off
+    strip.setPixelColor(i, black); // off
   }
+  strip.show();  
 }
 
 // Fill the dots one after the other with a color
 void solidColor(uint32_t c, uint8_t wait) {
-  Serial.println("  solid color -> start");
+  log(F("  solid color -> start"));
   for(uint16_t i=0; i<strip.numPixels(); i++) {
-      Serial.println("  solid color -> for_top -> number_of_pixels/i");
-      Serial.println(strip.numPixels());
-      Serial.println(i);
+      log(F("  solid color -> for_top -> number_of_pixels/i"));
+      log(F(strip.numPixels()));
+      log(F(i));
       strip.setPixelColor(i, c);
-      Serial.println("  solid color -> set_pixel_color");
+      log(F("  solid color -> set_pixel_color"));
       strip.show();
-      Serial.println("  solid color -> strip_show");
+      log(F("  solid color -> strip_show"));
       delay(wait);
-      Serial.println("  solid color -> for_bottom");
+      log(F("  solid color -> for_bottom"));
   }
-  Serial.println("  solid color -> complete");
+  log(F("  solid color -> complete"));
 }
 
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
-  Serial.println("  color wipe -> start");
+  log(F("  color wipe -> start"));
   for(uint16_t i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, c);
       strip.show();
       delay(wait);
   }
-  Serial.println("  color wipe -> complete");
+  log(F("  color wipe -> complete"));
 }
 
 void rainbow(uint8_t wait) {
-  Serial.println("  rainbow -> start");
+  log(F("  rainbow -> start"));
   uint16_t i, j;
 
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
-      Serial.println("  rainbow -> for_top  -> number_of_pixels/i/j");
-      Serial.println(strip.numPixels());
-      Serial.println(i);
-      Serial.println(j);
+      log(F("  rainbow -> for_top  -> number_of_pixels/i/j"));
+      log(F(strip.numPixels()));
+      log(F(i));
+      log(F(j));
       strip.setPixelColor(i, Wheel((i+j) & 255));
-      Serial.println("  rainbow -> for_bottom");
+      log(F("  rainbow -> for_bottom"));
     }
     strip.show();
     delay(wait);
   }
-  Serial.println("  rainbow -> complete");
+  log(F("  rainbow -> complete"));
 }
 
-// Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
-  Serial.println("  rainbowCycle -> start");
+  log(F("  rainbowCycle -> start"));
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
-      Serial.println("  rainbowCycle -> for_top  -> number_of_pixels/i/j");
-      Serial.println(strip.numPixels());
-      Serial.println(i);
-      Serial.println(j);
+      log(F("  rainbowCycle -> for_top  -> number_of_pixels/i/j"));
+      log(F(strip.numPixels()));
+      log(F(i));
+      log(F(j));
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-      Serial.println("  rainbowCycle -> for_bottom");
+      log(F("  rainbowCycle -> for_bottom"));
     }
     strip.show();
     delay(wait);
   }
-  Serial.println("  rainbowCycle -> complete");
+  log(F("  rainbowCycle -> complete"));
 }
 
-//Theatre-style crawling lights.
 void theaterChase(uint32_t c, uint8_t wait) {
-  Serial.println("  theaterChase -> start");
+  log(F("  theaterChase -> start"));
   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
     for (int q=0; q < 3; q++) {
       for (int i=0; i < strip.numPixels(); i=i+3) {
-        Serial.println("  theaterChase -> for_top  -> number_of_pixels/i/j/q");
-        Serial.println(strip.numPixels());
-        Serial.println(i);
-        Serial.println(j);
-        Serial.println(q);
+        log(F("  theaterChase -> for_top  -> number_of_pixels/i/j/q"));
+        log(F(strip.numPixels()));
+        log(F(i));
+        log(F(j));
+        log(F(q));
         strip.setPixelColor(i+q, c);    //turn every third pixel on
-        Serial.println("  theaterChase -> for_bottom");
+        log(F("  theaterChase -> for_bottom"));
       }
       strip.show();
-
       delay(wait);
 
       for (int i=0; i < strip.numPixels(); i=i+3) {
@@ -510,19 +517,17 @@ void theaterChase(uint32_t c, uint8_t wait) {
       }
     }
   }
-  Serial.println("  theaterChase -> complete");
+  log(F("  theaterChase -> complete"));
 }
 
-//Theatre-style crawling lights with rainbow effect
 void theaterChaseRainbow(uint8_t wait) {
-  Serial.println("  theaterChaseRainbow -> start");
+  log(F("  theaterChaseRainbow -> start"));
   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
     for (int q=0; q < 3; q++) {
         for (int i=0; i < strip.numPixels(); i=i+3) {
           strip.setPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
         }
         strip.show();
-
         delay(wait);
 
         for (int i=0; i < strip.numPixels(); i=i+3) {
@@ -530,26 +535,27 @@ void theaterChaseRainbow(uint8_t wait) {
         }
     }
   }
-  Serial.println("  theaterChaseRainbow -> complete");
+  log(F("  theaterChaseRainbow -> complete"));
 }
 
-// Test routines that runs execute several lighting control modes
 void test(uint8_t wait) {
-  Serial.println("  test -> start");
+  log(F("  test -> start"));
   // Color wipe
-  colorWipe(strip.Color(255, 0, 0), DELAY); // Red
-  colorWipe(strip.Color(0, 255, 0), DELAY); // Green
-  colorWipe(strip.Color(0, 0, 255), DELAY); // Blue
+  colorWipe(red, DELAY); // Red
+  colorWipe(white, DELAY); // White
+  colorWipe(blue, DELAY); // Blue
+  colorWipe(green, DELAY); // Green
 
   // Send a theater pixel chase in...
-  theaterChase(strip.Color(127, 127, 127), DELAY); // White
-  theaterChase(strip.Color(127,   0,   0), DELAY); // Red
-  theaterChase(strip.Color(  0,   0, 127), DELAY); // Blue
+  theaterChase(red, DELAY); // Red
+  theaterChase(white, DELAY); // White
+  theaterChase(blue, DELAY); // Blue
+  theaterChase(green, DELAY); // Green
 
   rainbow(DELAY);
   rainbowCycle(DELAY);
   theaterChaseRainbow(DELAY);
-  Serial.println("  test -> complete");
+  log(F("  test -> complete"));
 }
 
 // Low level routines for listening and adapting to audio

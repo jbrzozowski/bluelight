@@ -169,7 +169,7 @@ void setup(void)
     // Change Mode LED Activity
     Serial.println(F("setup -> Change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
-    ble.sendCommandCheckOK("AT+GAPDEVNAME=JEDI");
+    ble.sendCommandCheckOK("AT+GAPDEVNAME=CBLU");
   }
 
   // Added to support listen() via the microphone

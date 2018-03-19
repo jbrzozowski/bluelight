@@ -70,7 +70,7 @@ float parsefloat(uint8_t *buffer);
 void printHex(const uint8_t * data, const uint32_t numBytes);
 extern uint8_t packetbuffer[];
 uint8_t mode = 1;
-bool debug = true;
+bool debug = false;
 
 // Color and animation state definitions
 uint32_t blue = strip.Color(0,0,255);
@@ -427,7 +427,7 @@ void off() {
   for(uint8_t i=0; i<N_PIXELS; i++) {
     strip.setPixelColor(i, black); // off
   }
-  strip.show();  
+  strip.show();
 }
 
 // Fill the dots one after the other with a color
@@ -640,7 +640,7 @@ bool getUserInput(char buffer[], uint8_t maxSize)
   return true;
 }
 
-// error printing routine
+// logging routine
 void log(const __FlashStringHelper*err) {
   if(debug) {
     Serial.println(err);

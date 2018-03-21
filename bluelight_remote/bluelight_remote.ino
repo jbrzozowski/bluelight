@@ -62,6 +62,7 @@ Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB);
 
 // Global variables
+char inputs[BUFSIZE+1];
 uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout);
 float parsefloat(uint8_t *buffer);
 void printHex(const uint8_t * data, const uint32_t numBytes);
@@ -188,7 +189,6 @@ void loop(void) {
   log("loop -> animationState = ");
   log(String(animationState));
   // Check for user input
-  char inputs[BUFSIZE+1];
 
   // Echoeing data received back to the sender
   if (getUserInput(inputs, BUFSIZE)) {
@@ -373,13 +373,13 @@ void loop(void) {
 
   if (animationState == 128){
     // listenred
-    test(DELAY);
+    listen(red);
     // strip.show();
   }
 
   if (animationState == 136){
     // listenblue
-    test(DELAY);
+    listen(blue);
     // strip.show();
   }
 
@@ -632,7 +632,7 @@ bool getUserInput(char buffer[], uint8_t maxSize) {
     delay(2);
   } while( (count < maxSize) && (Serial.available()) );
 
-  log(("  getUserInput -> bottom"));  
+  log(("  getUserInput -> bottom"));
   return true;
 }
 

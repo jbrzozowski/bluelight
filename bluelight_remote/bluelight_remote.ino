@@ -341,8 +341,8 @@ void loop(void) {
       } else {
         log("loop -> last and current command are equal\n");
       }
+    }
   }
-}
 
   // Light control mode routines
   log(("loop -> animationState = " + String(animationState) + "\n"));

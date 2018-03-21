@@ -120,8 +120,7 @@ void setup(void)
   Serial.print(F("setup -> initialising the Bluefruit LE module"));
 
   // BLE setup
-  if (!ble.begin(VERBOSE_MODE))
-  {
+  if (!ble.begin(VERBOSE_MODE)) {
     Serial.println("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
   }
   Serial.println("setup -> OK");

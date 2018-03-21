@@ -236,11 +236,11 @@ void loop(void) {
   }
 
   if(!listening) {
+    lastAnimationState = animationState;
     if (bleBuffer.equals("off")) {
         log("loop -> setting animationState = off\n");
         animationState = 0;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("blue")) {
         log("loop -> setting animationState = blue\n");
@@ -252,61 +252,51 @@ void loop(void) {
         log("loop -> setting animationState = red\n");
         animationState = 16;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("rainbow")) {
         log("loop -> setting animationState = rainbow\n");
         animationState = 32;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("wipeblue")) {
         log("loop -> setting animationState = wipeblue\n");
         animationState = 40;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("wipered")) {
         log("loop -> setting animationState = wipered\n");
         animationState = 48;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("wipewhite")) {
         log("loop -> setting animationState = wipewhite\n");
         animationState = 56;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("wipegreen")) {
         log("loop -> setting animationState = wipegreen\n");
         animationState = 64;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("rainbowcycle")) {
         log("loop -> setting animationState = rainbowcycle\n");
         animationState = 72;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("rainbowtheater")) {
         log("loop -> setting animationState = rainbowtheater\n");
         animationState = 80;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("theaterchase")) {
         log("loop -> setting animationState = theaterchase\n");
         animationState = 88;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("test")) {
         log("loop -> setting animationState = test\n");
         animationState = 120;
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("debugon")) {
         log("loop -> setting debug\n");
@@ -314,7 +304,6 @@ void loop(void) {
         ble.echo(true);
         ble.verbose(true);
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
     if (bleBuffer.equals("debugoff")) {
         log("loop -> setting debug\n");
@@ -322,22 +311,20 @@ void loop(void) {
         ble.echo(false);
         ble.verbose(false);
         lastcmd = bleBuffer;
-        lastAnimationState = animationState;
     }
   } else {
       if(!bleBuffer.equals(lastcmd)) {
+        lastAnimationState = animationState;
         log("loop -> changing listen mode\n");
         if (bleBuffer.equals("listenred")) {
           log("loop -> setting animationState = listenred\n");
           animationState = 128;
           lastcmd = bleBuffer;
-          lastAnimationState = animationState;
         }
         if (bleBuffer.equals("listenblue")) {
             log("loop -> setting animationState = listenblue\n");
             animationState = 136;
             lastcmd = bleBuffer;
-            lastAnimationState = animationState;
         }
       } else {
         log("loop -> last and current command are equal\n");
@@ -347,7 +334,7 @@ void loop(void) {
   // LED control mode routines
   log(("loop -> animationState = " + String(animationState) + "\n"));
   // New control processing
-  if(animationState <= 128) {
+  if(animationState < 128) {
     if (animationState == 0){
       // off
       off();
@@ -417,6 +404,7 @@ void loop(void) {
     }
   } else {
     if(lastAnimationState != animationState) {
+      log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));      
       if (animationState == 128){
         // listenred
         listen(red);
@@ -427,6 +415,8 @@ void loop(void) {
         listen(blue);
         // strip.show();
       }
+    } else {
+      log(("loop -> animationState == lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));      
     }
   }
 
@@ -610,7 +600,7 @@ void listen(uint32_t c) {
   // Color pixels based on rainbow gradient
   for(i=0; i<N_PIXELS; i++) {
     if(i >= height) {
-      log("\tlisten -> setting color\n");
+      log("\tlisten -> setting color -> i/N_PIXELS/height -> " + String(i) + "/" + String(N_PIXELS) + "/" + String(height) + "\n");
       strip.setPixelColor(i,c);
     }
     else {

@@ -404,7 +404,7 @@ void loop(void) {
     }
   } else {
     if(lastAnimationState != animationState) {
-      log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));      
+      log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
       if (animationState == 128){
         // listenred
         listen(red);
@@ -416,7 +416,7 @@ void loop(void) {
         // strip.show();
       }
     } else {
-      log(("loop -> animationState == lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));      
+      log(("loop -> animationState == lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
     }
   }
 
@@ -579,7 +579,6 @@ void test(uint8_t wait) {
 // Low level routines for listening and adapting to audio
 void listen(uint32_t c) {
   log("\tlisten -> top\n");
-  // @todo - need to add support for accepting color as an argument
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;
@@ -601,16 +600,20 @@ void listen(uint32_t c) {
   for(i=0; i<N_PIXELS; i++) {
     if(i >= height) {
       log("\tlisten -> setting color -> i/N_PIXELS/height -> " + String(i) + "/" + String(N_PIXELS) + "/" + String(height) + "\n");
-      strip.setPixelColor(i,c);
+      strip.setPixelColor(i,black);
     }
     else {
-      strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
+      // strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
+      strip.setPixelColor(i,c);
     }
   }
 
   // Draw peak dot
-  if(peak > 0 && peak <= N_PIXELS-1) strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
-  strip.show(); // Update strip
+  if(peak > 0 && peak <= N_PIXELS-1) {
+    // strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
+    strip.setPixelColor(peak,c);
+    strip.show(); // Update strip
+  }
 
   // Every few frames, make the peak pixel drop by 1:
   if(++dotCount >= PEAK_FALL) { //fall rate

@@ -117,19 +117,18 @@ void setup(void)
   // BLE setup
   if ( !ble.begin(VERBOSE_MODE) )
   {
-    log(F("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
+    Serial.println("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
   }
-  Serial.println( F("OK!") );
+  Serial.println("setup -> OK");
 
-  if ( FACTORYRESET_ENABLE )
-  {
+  if ( FACTORYRESET_ENABLE ) {
     /* Perform a factory reset to make sure everything is in a known state */
-    Serial.println(F("setup -> Performing a factory reset: "));
+    Serial.println("setup -> Performing a factory reset:");
     if ( ! ble.factoryReset() ){
-      log(F("setup -> Couldn't factory reset"));
+      Serial.println("setup -> Couldn't factory reset");
     }
   } else {
-    Serial.print(F("setup -> factory reset disabled"));
+    Serial.print("setup -> factory reset disabled");
   }
 
   // Enable/Disable command echo from Bluefruit
@@ -144,9 +143,8 @@ void setup(void)
   ble.info();
   // Serial.print(ble.info());
 
-  Serial.println(F("setup -> Please use Adafruit Bluefruit LE app to connect in UART mode"));
-  Serial.println(F("setup -> Then Enter characters to send to Bluefruit"));
-  Serial.println();
+  Serial.println("setup -> Please use Adafruit Bluefruit LE app to connect in UART mode");
+  Serial.println("setup -> Then Enter characters to send to Bluefruit");
 
   // Enable/Disable Bluefruit verbosity
   if (debug) {
@@ -184,37 +182,35 @@ void setup(void)
 
 // Main loop
 void loop(void) {
-  digitalWrite(BOARD_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  // delay(1000);              // wait for a second
-  log(F("loop -> top"));
-  log(F("loop -> animationState = "));
-  log(F(String(animationState)));
+  digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
+  // delay(1000);                   // wait for a second
+  log("loop -> top");
+  log("loop -> animationState = ");
+  log(String(animationState));
   // Check for user input
-  // char inputs[BUFSIZE+1];
+  char inputs[BUFSIZE+1];
 
-/**
-  if ( getUserInput(inputs, BUFSIZE) )
-  {
+  // Echoeing data received back to the sender
+  if (getUserInput(inputs, BUFSIZE)) {
     // Send characters to Bluefruit
-    Serial.print("[Send] ");
-    Serial.println(inputs);
+    log("loop -> sending = ");
+    log(inputs);
 
     ble.print("AT+BLEUARTTX=");
     ble.println(inputs);
 
     // check response stastus
     if (! ble.waitForOK() ) {
-      Serial.println(F("Failed to send?"));
+      log("Failed to send?");
     }
   }
-**/
 
   // Check for incoming characters from Bluefruit
   ble.println("AT+BLEUARTRX");
   ble.readline();
   // Control for BLE buffer debug
-  log(F("loop -> Buffer = "));
-  log(F(String(ble.buffer)));
+  log("loop -> received = ");
+  log(String(ble.buffer));
 
   /**
   if (strcmp(ble.buffer, "OK") == 0) {
@@ -226,80 +222,80 @@ void loop(void) {
 // Processing of control mode messages received over bluetooth
 // @todo - add a check for runtime setting of debug
   if (strcmp(ble.buffer, "off") == 0) {
-      log(F("loop -> setting animationState = off"));
+      log(("loop -> setting animationState = off"));
       animationState = 0;
   }
   if (strcmp(ble.buffer, "blue") == 0) {
-      log(F("loop -> setting animationState = blue"));
+      log(("loop -> setting animationState = blue"));
       animationState = 8;
   }
   if (strcmp(ble.buffer, "red") == 0) {
-      log(F("loop -> setting animationState = red"));
+      log(("loop -> setting animationState = red"));
       animationState = 16;
   }
   if (strcmp(ble.buffer, "rainbow") == 0) {
-      log(F("loop -> setting animationState = rainbow"));
+      log(("loop -> setting animationState = rainbow"));
       animationState = 32;
   }
   if (strcmp(ble.buffer, "wipeblue") == 0) {
-      log(F("loop -> setting animationState = wipeblue"));
+      log(("loop -> setting animationState = wipeblue"));
       animationState = 40;
   }
   if (strcmp(ble.buffer, "wipered") == 0) {
-      log(F("loop -> setting animationState = wipered"));
+      log(("loop -> setting animationState = wipered"));
       animationState = 48;
   }
   if (strcmp(ble.buffer, "wipewhite") == 0) {
-      log(F("loop -> setting animationState = wipewhite"));
+      log(("loop -> setting animationState = wipewhite"));
       animationState = 56;
   }
   if (strcmp(ble.buffer, "wipegreen") == 0) {
-      log(F("loop -> setting animationState = wipegreen"));
+      log(("loop -> setting animationState = wipegreen"));
       animationState = 64;
   }
   if (strcmp(ble.buffer, "rainbowcycle") == 0) {
-      log(F("loop -> setting animationState = rainbowcycle"));
+      log(("loop -> setting animationState = rainbowcycle"));
       animationState = 72;
   }
 
   if (strcmp(ble.buffer, "rainbowtheater") == 0) {
-      log(F("loop -> setting animationState = rainbowtheater"));
+      log(("loop -> setting animationState = rainbowtheater"));
       animationState = 80;
   }
 
   if (strcmp(ble.buffer, "theaterchase") == 0) {
-      log(F("loop -> setting animationState = theaterchase"));
+      log(("loop -> setting animationState = theaterchase"));
       animationState = 88;
   }
 
   if (strcmp(ble.buffer, "listenred") == 0) {
-      log(F("loop -> setting animationState = listenred"));
+      log(("loop -> setting animationState = listenred"));
       animationState = 128;
   }
   if (strcmp(ble.buffer, "listenblue") == 0) {
-      log(F("loop -> setting animationState = listenblue"));
+      log(("loop -> setting animationState = listenblue"));
       animationState = 136;
   }
   if (strcmp(ble.buffer, "test") == 0) {
-      log(F("loop -> setting animationState = test"));
+      log(("loop -> setting animationState = test"));
       animationState = 255;
   }
   if (strcmp(ble.buffer, "debugon") == 0) {
-      log(F("loop -> setting debug"));
+      log(("loop -> setting debug"));
       debug = true;
       ble.echo(true);
       ble.verbose(true);
   }
   if (strcmp(ble.buffer, "debugoff") == 0) {
-      log(F("loop -> setting debug"));
+      log(("loop -> setting debug"));
       debug = false;
       ble.echo(false);
       ble.verbose(false);
   }
 
 // Light control mode routines
-  log(F("loop -> animationState = "));
-  log(F(String(animationState)));
+  log(("loop -> animationState = "));
+  log((String(animationState)));
 
 // New control processing
   if (animationState == 0){
@@ -393,9 +389,9 @@ void loop(void) {
     // strip.show();
   }
 
-  log(F("loop -> bottom"));
-  log(F("loop -> animationState = "));
-  log(F(String(animationState)));
+  log(("loop -> bottom"));
+  log(("loop -> animationState = "));
+  log((String(animationState)));
   // turn the LED off by making the voltage LOW
   digitalWrite(BOARD_PIN, LOW);
   // delay(1000);              // wait for a second
@@ -429,82 +425,82 @@ void off() {
 
 // Fill the dots one after the other with a color
 void solidColor(uint32_t c, uint8_t wait) {
-  log(F("  solid color -> start"));
+  log(("  solid color -> start"));
   for(uint16_t i=0; i<strip.numPixels(); i++) {
-      log(F("  solid color -> for_top -> number_of_pixels/i"));
-      log(F(String(strip.numPixels())));
-      log(F(String(i)));
+      log(("  solid color -> for_top -> number_of_pixels/i"));
+      log((String(strip.numPixels())));
+      log((String(i)));
       strip.setPixelColor(i, c);
-      log(F("  solid color -> set_pixel_color"));
+      log(("  solid color -> set_pixel_color"));
       strip.show();
-      log(F("  solid color -> strip_show"));
+      log(("  solid color -> strip_show"));
       delay(wait);
-      log(F("  solid color -> for_bottom"));
+      log(("  solid color -> for_bottom"));
   }
-  log(F("  solid color -> complete"));
+  log(("  solid color -> complete"));
 }
 
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
-  log(F("  color wipe -> start"));
+  log(("  color wipe -> start"));
   for(uint16_t i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, c);
       strip.show();
       delay(wait);
   }
-  log(F("  color wipe -> complete"));
+  log(("  color wipe -> complete"));
 }
 
 void rainbow(uint8_t wait) {
-  log(F("  rainbow -> start"));
+  log(("  rainbow -> start"));
   uint16_t i, j;
 
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
-      log(F("  rainbow -> for_top  -> number_of_pixels/i/j"));
-      log(F(String(strip.numPixels())));
-      log(F(String(i)));
-      log(F(String(j)));
+      log(("  rainbow -> for_top  -> number_of_pixels/i/j"));
+      log((String(strip.numPixels())));
+      log((String(i)));
+      log((String(j)));
       strip.setPixelColor(i, Wheel((i+j) & 255));
-      log(F("  rainbow -> for_bottom"));
+      log(("  rainbow -> for_bottom"));
     }
     strip.show();
     delay(wait);
   }
-  log(F("  rainbow -> complete"));
+  log(("  rainbow -> complete"));
 }
 
 void rainbowCycle(uint8_t wait) {
-  log(F("  rainbowCycle -> start"));
+  log(("  rainbowCycle -> start"));
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< strip.numPixels(); i++) {
-      log(F("  rainbowCycle -> for_top  -> number_of_pixels/i/j"));
-      log(F(String(strip.numPixels())));
-      log(F(String(i)));
-      log(F(String(j)));
+      log(("  rainbowCycle -> for_top  -> number_of_pixels/i/j"));
+      log((String(strip.numPixels())));
+      log((String(i)));
+      log((String(j)));
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-      log(F("  rainbowCycle -> for_bottom"));
+      log(("  rainbowCycle -> for_bottom"));
     }
     strip.show();
     delay(wait);
   }
-  log(F("  rainbowCycle -> complete"));
+  log(("  rainbowCycle -> complete"));
 }
 
 void theaterChase(uint32_t c, uint8_t wait) {
-  log(F("  theaterChase -> start"));
+  log(("  theaterChase -> start"));
   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
     for (int q=0; q < 3; q++) {
       for (int i=0; i < strip.numPixels(); i=i+3) {
-        log(F("  theaterChase -> for_top  -> number_of_pixels/i/j/q"));
-        log(F(String(strip.numPixels())));
-        log(F(String(i)));
-        log(F(String(j)));
-        log(F(String(q)));
+        log(("  theaterChase -> for_top  -> number_of_pixels/i/j/q"));
+        log((String(strip.numPixels())));
+        log((String(i)));
+        log((String(j)));
+        log((String(q)));
         strip.setPixelColor(i+q, c);    //turn every third pixel on
-        log(F("  theaterChase -> for_bottom"));
+        log(("  theaterChase -> for_bottom"));
       }
       strip.show();
       delay(wait);
@@ -514,11 +510,11 @@ void theaterChase(uint32_t c, uint8_t wait) {
       }
     }
   }
-  log(F("  theaterChase -> complete"));
+  log(("  theaterChase -> complete"));
 }
 
 void theaterChaseRainbow(uint8_t wait) {
-  log(F("  theaterChaseRainbow -> start"));
+  log(("  theaterChaseRainbow -> start"));
   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
     for (int q=0; q < 3; q++) {
         for (int i=0; i < strip.numPixels(); i=i+3) {
@@ -532,11 +528,11 @@ void theaterChaseRainbow(uint8_t wait) {
         }
     }
   }
-  log(F("  theaterChaseRainbow -> complete"));
+  log(("  theaterChaseRainbow -> complete"));
 }
 
 void test(uint8_t wait) {
-  log(F("  test -> start"));
+  log(("  test -> start"));
   // Color wipe
   colorWipe(red, DELAY); // Red
   colorWipe(white, DELAY); // White
@@ -552,20 +548,21 @@ void test(uint8_t wait) {
   rainbow(DELAY);
   rainbowCycle(DELAY);
   theaterChaseRainbow(DELAY);
-  log(F("  test -> complete"));
+  log(("  test -> complete"));
 }
 
 // Low level routines for listening and adapting to audio
-void listen() {
+void listen(uint32_t c) {
+  log(("  listen -> top"));
   // @todo - need to add support for accepting color as an argument
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;
 
-  n   = analogRead(MIC_PIN);                        // Raw reading from mic
-  n   = abs(n - 512 - DC_OFFSET); // Center on zero
-  n   = (n <= NOISE) ? 0 : (n - NOISE);             // Remove noise/hum
-  lvl = ((lvl * 7) + n) >> 3;    // "Dampened" reading (else looks twitchy)
+  n   = analogRead(MIC_PIN);            // Raw reading from mic
+  n   = abs(n - 512 - DC_OFFSET);       // Center on zero
+  n   = (n <= NOISE) ? 0 : (n - NOISE); // Remove noise/hum
+  lvl = ((lvl * 7) + n) >> 3;           // "Dampened" reading (else looks twitchy)
 
   // Calculate bar height based on dynamic min/max levels (fixed point):
   height = TOP * (lvl - minLvlAvg) / (long)(maxLvlAvg - minLvlAvg);
@@ -577,23 +574,24 @@ void listen() {
 
   // Color pixels based on rainbow gradient
   for(i=0; i<N_PIXELS; i++) {
-    if(i >= height)               strip.setPixelColor(i,   0,   0, 0);
-    else strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
-
+    if(i >= height) {
+      log(("  listen -> setting color"));
+      strip.setPixelColor(i,c);
+    }
+    else {
+      strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
+    }
   }
 
   // Draw peak dot
   if(peak > 0 && peak <= N_PIXELS-1) strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
-
-   strip.show(); // Update strip
+  strip.show(); // Update strip
 
   // Every few frames, make the peak pixel drop by 1:
-
-    if(++dotCount >= PEAK_FALL) { //fall rate
-
-      if(peak > 0) peak--;
-      dotCount = 0;
-    }
+  if(++dotCount >= PEAK_FALL) { //fall rate
+    if(peak > 0) peak--;
+    dotCount = 0;
+  }
 
   vol[volCount] = n;                      // Save sample for dynamic leveling
   if(++volCount >= SAMPLES) volCount = 0; // Advance/rollover sample counter
@@ -613,11 +611,12 @@ void listen() {
   if((maxLvl - minLvl) < TOP) maxLvl = minLvl + TOP;
     minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
     maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
+  log(("  listen -> bottom"));
 }
 
 // @brief  Checks for user input (via the Serial Monitor)
-bool getUserInput(char buffer[], uint8_t maxSize)
-{
+bool getUserInput(char buffer[], uint8_t maxSize) {
+  log(("  getUserInput -> top"));
   // timeout in 100 milliseconds
   TimeoutTimer timeout(100);
 
@@ -628,12 +627,12 @@ bool getUserInput(char buffer[], uint8_t maxSize)
 
   delay(2);
   uint8_t count=0;
-  do
-  {
+  do {
     count += Serial.readBytes(buffer+count, maxSize);
     delay(2);
   } while( (count < maxSize) && (Serial.available()) );
 
+  log(("  getUserInput -> bottom"));  
   return true;
 }
 

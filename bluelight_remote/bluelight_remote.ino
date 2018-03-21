@@ -122,8 +122,9 @@ void setup(void)
   // BLE setup
   if (!ble.begin(VERBOSE_MODE)) {
     Serial.println("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
+  } else {
+    Serial.println("setup -> OK");
   }
-  Serial.println("setup -> OK");
 
   if (FACTORYRESET_ENABLE) {
     /* Perform a factory reset to make sure everything is in a known state */
@@ -142,7 +143,7 @@ void setup(void)
     ble.echo(false);
   }
 
-  Serial.println("setup -> Requesting Bluefruit info:");
+  Serial.println("setup -> requesting Bluefruit info:");
   /* Print Bluefruit information */
   ble.info();
   // Serial.print(ble.info());
@@ -342,9 +343,8 @@ void loop(void) {
         log("loop -> last and current command are equal\n");
       }
     }
-  }
 
-  // Light control mode routines
+  // LED control mode routines
   log(("loop -> animationState = " + String(animationState) + "\n"));
   // New control processing
   if(animationState <= 128) {

@@ -640,10 +640,17 @@ bool getUserInput(char buffer[], uint8_t maxSize)
   return true;
 }
 
-// logging routine
-void log(const __FlashStringHelper*err) {
+// error printing routine
+void error(const __FlashStringHelper*err) {
   if(debug) {
     Serial.println(err);
     // while (1);
+  }
+}
+
+// logging routine
+void log(String message) {
+  if(debug) {
+    Serial.println(message);
   }
 }

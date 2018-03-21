@@ -119,7 +119,7 @@ This paragraph must be included in any redistribution.
     #define MODE_LED_BEHAVIOUR          "MODE"
     #define LED_PIN                       6
     #define BOARD_PIN                     13  // NeoPixel LED strand is connected to this pin
-    #define N_PIXELS                      73
+    #define N_PIXELS                      50
     #define MIC_PIN                       A1
     // Added to support RGB LED strips
     #define REDPIN                        11

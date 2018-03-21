@@ -69,7 +69,8 @@ void printHex(const uint8_t * data, const uint32_t numBytes);
 extern uint8_t packetbuffer[];
 uint8_t mode = 1;
 bool debug = false;
-String lastcmd;
+String lastcmd = "";
+String bleBuffer = "";
 
 // Color and animation state definitions
 uint32_t blue = strip.Color(0,0,255);
@@ -184,223 +185,226 @@ void setup(void)
 
 // Main loop
 void loop(void) {
-  digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
-  // delay(1000);                   // wait for a second
-  log("loop -> top\n");
-  log("loop -> animationState = " + String(animationState) + "\n");
-  // Check for user input
-
-  // Echoeing data received back to the sender
-  if (getUserInput(inputs, BUFSIZE)) {
-    // Send characters to Bluefruit
-    log("loop -> sending = " + inputs + "\n");
-
-    ble.print("AT+BLEUARTTX=");
-    ble.println(inputs);
-
-    // check response stastus
-    if (! ble.waitForOK()) {
-      log("Failed to send?\n");
+  for(;;) {
+    digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
+    // delay(1000);                   // wait for a second
+    log("loop -> top\n");
+    log("loop -> animationState = " + String(animationState) + "\n");
+    // Check for user input
+  
+    // Echoeing data received back to the sender
+    if (getUserInput(inputs, BUFSIZE)) {
+      // Send characters to Bluefruit
+      log("loop -> sending = " + String(inputs) + "\n");
+  
+      ble.print("AT+BLEUARTTX=");
+      ble.println(inputs);
+  
+      // check response stastus
+      if (! ble.waitForOK()) {
+        log("Failed to send?\n");
+      }
     }
+  
+    // Check for incoming characters from Bluefruit
+    ble.println("AT+BLEUARTRX");
+    ble.readline();
+    bleBuffer = String(ble.buffer);
+    // Control for BLE buffer debug
+    log("loop -> received = " + bleBuffer + "\n");
+  
+    /**
+    if (strcmp(ble.buffer, "OK") == 0) {
+      // no data
+      return;
+    }
+    **/
+  
+  // Processing of control mode messages received over bluetooth
+  // @todo - add a check for runtime setting of debug
+    if (lastcmd.equals(bleBuffer)) {
+      log("loop -> last command and current command are the same...\n");
+      continue;
+    }
+  
+    // Saving the last command received
+    log("loop -> lastcmd = " + lastcmd + "\n");
+    lastcmd = ble.buffer;
+  
+    if (strcmp(ble.buffer, "off") == 0) {
+        log("loop -> setting animationState = off\n");
+        animationState = 0;
+    }
+    if (strcmp(ble.buffer, "blue") == 0) {
+        log("loop -> setting animationState = blue\n");
+        animationState = 8;
+    }
+    if (strcmp(ble.buffer, "red") == 0) {
+        log("loop -> setting animationState = red\n");
+        animationState = 16;
+    }
+    if (strcmp(ble.buffer, "rainbow") == 0) {
+        log("loop -> setting animationState = rainbow\n");
+        animationState = 32;
+    }
+    if (strcmp(ble.buffer, "wipeblue") == 0) {
+        log("loop -> setting animationState = wipeblue\n");
+        animationState = 40;
+    }
+    if (strcmp(ble.buffer, "wipered") == 0) {
+        log("loop -> setting animationState = wipered\n");
+        animationState = 48;
+    }
+    if (strcmp(ble.buffer, "wipewhite") == 0) {
+        log("loop -> setting animationState = wipewhite\n");
+        animationState = 56;
+    }
+    if (strcmp(ble.buffer, "wipegreen") == 0) {
+        log("loop -> setting animationState = wipegreen\n");
+        animationState = 64;
+    }
+    if (strcmp(ble.buffer, "rainbowcycle") == 0) {
+        log("loop -> setting animationState = rainbowcycle\n");
+        animationState = 72;
+    }
+  
+    if (strcmp(ble.buffer, "rainbowtheater") == 0) {
+        log("loop -> setting animationState = rainbowtheater\n");
+        animationState = 80;
+    }
+  
+    if (strcmp(ble.buffer, "theaterchase") == 0) {
+        log("loop -> setting animationState = theaterchase\n");
+        animationState = 88;
+    }
+  
+    if (strcmp(ble.buffer, "listenred") == 0) {
+        log("loop -> setting animationState = listenred\n");
+        animationState = 128;
+    }
+    if (strcmp(ble.buffer, "listenblue") == 0) {
+        log("loop -> setting animationState = listenblue\n");
+        animationState = 136;
+    }
+    if (strcmp(ble.buffer, "test") == 0) {
+        log("loop -> setting animationState = test\n");
+        animationState = 255;
+    }
+    if (strcmp(ble.buffer, "debugon") == 0) {
+        log("loop -> setting debug\n");
+        debug = true;
+        ble.echo(true);
+        ble.verbose(true);
+    }
+    if (strcmp(ble.buffer, "debugoff") == 0) {
+        log("loop -> setting debug\n");
+        debug = false;
+        ble.echo(false);
+        ble.verbose(false);
+    }
+  
+  // Light control mode routines
+    log(("loop -> animationState = " + String(animationState) + "\n"));
+  
+  // New control processing
+    if (animationState == 0){
+      // off
+      off();
+      // strip.show();
+     }
+  
+    if (animationState == 8){
+      // blue
+      solidColor(blue, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 16){
+      // red
+      solidColor(red, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 32){
+      // rainbow
+      rainbow(DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 40){
+      // wipeblue
+      colorWipe(blue, DELAY);
+      colorWipe(black, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 48){
+      // wipered
+      colorWipe(red, DELAY);
+      colorWipe(black, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 56){
+      // wipewhite
+      colorWipe(white, DELAY);
+      colorWipe(black, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 64){
+      // wipegreen
+      colorWipe(green, DELAY);
+      colorWipe(black, DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 72){
+      // rainbow cycle
+      rainbowCycle(DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 80){
+      // rainbowtheater
+      theaterChaseRainbow(DELAY);
+      // strip.show();
+    }
+  
+    if (animationState == 88){
+      // theaterchase
+      theaterChase(white, DELAY); // White
+      theaterChase(green, DELAY); // Green
+      theaterChase(red, DELAY); // Red
+      theaterChase(blue, DELAY); // Blue
+      // strip.show();
+    }
+  
+    if (animationState == 128){
+      // listenred
+      listen(red);
+      // strip.show();
+    }
+  
+    if (animationState == 136){
+      // listenblue
+      listen(blue);
+      // strip.show();
+    }
+  
+    if (animationState == 255){
+      // test
+      test(DELAY);
+      // strip.show();
+    }
+  
+    log(("loop -> bottom\n"));
+    log(("loop -> animationState = " + String(animationState) + "\n"));
+    // turn the LED off by making the voltage LOW
+    digitalWrite(BOARD_PIN, LOW);
+    // delay(1000);              // wait for a second
+    ble.waitForOK();
   }
-
-  // Check for incoming characters from Bluefruit
-  ble.println("AT+BLEUARTRX");
-  ble.readline();
-  // Control for BLE buffer debug
-  log("loop -> received = " + String(ble.buffer) + "\n");
-
-  /**
-  if (strcmp(ble.buffer, "OK") == 0) {
-    // no data
-    return;
-  }
-  **/
-
-// Processing of control mode messages received over bluetooth
-// @todo - add a check for runtime setting of debug
-  if (strcmp(ble.buffer, lastcmd) == 0) {
-    log("loop -> last command and current command are the same...\n");
-    continue;
-  }
-
-  // Saving the last command received
-  log("loop -> lastcmd = " + lastcmd + "\n");
-  lastcmd = ble.buffer;
-
-  if (strcmp(ble.buffer, "off") == 0) {
-      log("loop -> setting animationState = off\n");
-      animationState = 0;
-  }
-  if (strcmp(ble.buffer, "blue") == 0) {
-      log("loop -> setting animationState = blue\n");
-      animationState = 8;
-  }
-  if (strcmp(ble.buffer, "red") == 0) {
-      log("loop -> setting animationState = red\n");
-      animationState = 16;
-  }
-  if (strcmp(ble.buffer, "rainbow") == 0) {
-      log("loop -> setting animationState = rainbow\n");
-      animationState = 32;
-  }
-  if (strcmp(ble.buffer, "wipeblue") == 0) {
-      log("loop -> setting animationState = wipeblue\n");
-      animationState = 40;
-  }
-  if (strcmp(ble.buffer, "wipered") == 0) {
-      log("loop -> setting animationState = wipered\n");
-      animationState = 48;
-  }
-  if (strcmp(ble.buffer, "wipewhite") == 0) {
-      log("loop -> setting animationState = wipewhite\n");
-      animationState = 56;
-  }
-  if (strcmp(ble.buffer, "wipegreen") == 0) {
-      log("loop -> setting animationState = wipegreen\n");
-      animationState = 64;
-  }
-  if (strcmp(ble.buffer, "rainbowcycle") == 0) {
-      log("loop -> setting animationState = rainbowcycle\n");
-      animationState = 72;
-  }
-
-  if (strcmp(ble.buffer, "rainbowtheater") == 0) {
-      log("loop -> setting animationState = rainbowtheater\n");
-      animationState = 80;
-  }
-
-  if (strcmp(ble.buffer, "theaterchase") == 0) {
-      log("loop -> setting animationState = theaterchase\n");
-      animationState = 88;
-  }
-
-  if (strcmp(ble.buffer, "listenred") == 0) {
-      log("loop -> setting animationState = listenred\n");
-      animationState = 128;
-  }
-  if (strcmp(ble.buffer, "listenblue") == 0) {
-      log("loop -> setting animationState = listenblue\n");
-      animationState = 136;
-  }
-  if (strcmp(ble.buffer, "test") == 0) {
-      log("loop -> setting animationState = test\n");
-      animationState = 255;
-  }
-  if (strcmp(ble.buffer, "debugon") == 0) {
-      log("loop -> setting debug\n");
-      debug = true;
-      ble.echo(true);
-      ble.verbose(true);
-  }
-  if (strcmp(ble.buffer, "debugoff") == 0) {
-      log("loop -> setting debug\n");
-      debug = false;
-      ble.echo(false);
-      ble.verbose(false);
-  }
-
-// Light control mode routines
-  log(("loop -> animationState = " + String(animationState) + "\n"));
-
-// New control processing
-  if (animationState == 0){
-    // off
-    off();
-    // strip.show();
-   }
-
-  if (animationState == 8){
-    // blue
-    solidColor(blue, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 16){
-    // red
-    solidColor(red, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 32){
-    // rainbow
-    rainbow(DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 40){
-    // wipeblue
-    colorWipe(blue, DELAY);
-    colorWipe(black, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 48){
-    // wipered
-    colorWipe(red, DELAY);
-    colorWipe(black, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 56){
-    // wipewhite
-    colorWipe(white, DELAY);
-    colorWipe(black, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 64){
-    // wipegreen
-    colorWipe(green, DELAY);
-    colorWipe(black, DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 72){
-    // rainbow cycle
-    rainbowCycle(DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 80){
-    // rainbowtheater
-    theaterChaseRainbow(DELAY);
-    // strip.show();
-  }
-
-  if (animationState == 88){
-    // theaterchase
-    theaterChase(white, DELAY); // White
-    theaterChase(green, DELAY); // Green
-    theaterChase(red, DELAY); // Red
-    theaterChase(blue, DELAY); // Blue
-    // strip.show();
-  }
-
-  if (animationState == 128){
-    // listenred
-    listen(red);
-    // strip.show();
-  }
-
-  if (animationState == 136){
-    // listenblue
-    listen(blue);
-    // strip.show();
-  }
-
-  if (animationState == 255){
-    // test
-    test(DELAY);
-    // strip.show();
-  }
-
-  log(("loop -> bottom\n"));
-  log(("loop -> animationState = " + String(animationState) + "\n"));
-  // turn the LED off by making the voltage LOW
-  digitalWrite(BOARD_PIN, LOW);
-  // delay(1000);              // wait for a second
-  ble.waitForOK();
 }
 
 // Low level common routines

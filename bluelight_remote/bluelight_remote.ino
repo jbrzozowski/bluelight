@@ -16,7 +16,6 @@ any redistribution
 #include "Adafruit_BluefruitLE_SPI.h"
 #include "Adafruit_BluefruitLE_UART.h"
 #include "bluelight.h"
-// #include "BluefruitConfig.h"
 
 #if not defined (_VARIANT_ARDUINO_DUE_X_) && not defined (_VARIANT_ARDUINO_ZERO_)
   #include <SoftwareSerial.h>
@@ -25,8 +24,6 @@ any redistribution
 #if SOFTWARE_SERIAL_AVAILABLE
   #include <SoftwareSerial.h>
 #endif
-
-#include <Adafruit_NeoPixel.h>
 
 // BLE and Bluetooth variable and object definitions
 // @brief  Sets up the HW an the BLE module (this function is called automatically on startup)

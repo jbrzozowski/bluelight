@@ -100,10 +100,11 @@ int
 uint16_t gradient = 0; //Used to iterate and loop through each color palette gradually
 uint8_t volume = 0;    //Holds the volume level read from the sound detector.
 uint8_t last = 0;      //Holds the value of volume from the previous loop() pass.
-float maxVol = 15;     //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
+float maxVol = 10;     //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
 float avgVol = 0;      //Holds the "average" volume-level to proportionally adjust the visual experience.
 float avgBump = 0;     //Holds the "average" volume-change to trigger a "bump."
 bool bump = false;     //Used to pass if there was a "bump" in volume
+uint32_t listenColor;
 
 // Setup
 void setup(void)
@@ -205,11 +206,9 @@ void loop(void) {
   log("loop -> animationState = " + String(animationState) + "\n");
 
   // listen mode definitions
-  /**
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;
-  **/
 
   // Check for user input
   // Echoeing data received back to the sender
@@ -426,6 +425,7 @@ void loop(void) {
     // if(lastAnimationState != animationState) {
       // log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
       if (animationState == 128){
+        listenColor = red;
         // listenred
         // listen(red);
         // strip.show();
@@ -440,9 +440,11 @@ void loop(void) {
         //  In practice I've found noise can get up to 15, so if it's lower, the visual thinks it's silent.
         //  Also if the volume is less than average volume / 2 (essentially an average with 0), it's considered silent.
         if (volume < avgVol / 2.0 || volume < 15) volume = 0;
+        log("\tloop -> listen -> set_threshold_volume -> " + String(volume) + "\n");
 
         //If the current volume is larger than the loudest value recorded, overwrite
         if (volume > maxVol) maxVol = volume;
+        log("\tloop -> listen -> max_vol -> " + String(maxVol) + "\n");
 
         //This is where "gradient" is reset to prevent overflow.
         if (gradient > 1529) {
@@ -460,110 +462,11 @@ void loop(void) {
         if (volume - last > avgVol - last && avgVol - last > 0) avgBump = (avgBump + (volume - last)) / 2.0;
         //if there is a notable change in volume, trigger a "bump"
         bump = (volume - last) > avgBump;
+        log("\tloop -> listen -> bump -> " + String(bump) + "\n");
         pulse();        //Calls the visual to be displayed with the globals as they are.
         gradient++;     //Increments gradient
         last = volume;  //Records current volume for next pass
         // delay(30);   //Paces visuals so they aren't too fast to be enjoyable
-
-        /**
-        uint32_t listenColor = red;
-
-        n   = analogRead(MIC_PIN);            // Raw reading from mic
-        log("\tloop -> listen -> analog_read -> " + String(n) + "\n");
-        n   = abs(n - 512 - DC_OFFSET);       // Center on zero
-        log("\tloop -> listen after_abs -> " + String(n) + "\n");
-        n   = (n <= NOISE) ? 0 : (n - NOISE); // Remove noise/hum
-        log("\tloop -> listen -> after_noise_removal -> " + String(n) + "\n");
-        lvl = ((lvl * 7) + n) >> 3;           // "Dampened" reading (else looks twitchy)
-        log("\tloop -> listen -> lvl -> " + String(lvl) + "\n");
-
-        // Calculate bar height based on dynamic min/max levels (fixed point):
-        height = TOP * (lvl - minLvlAvg) / (long)(maxLvlAvg - minLvlAvg);
-        log("\tloop -> listen -> height -> " + String(height) + "\n");
-
-        if(height < 0L) {
-          height = 0;      // Clip output
-          log("\tloop -> listen -> height -> " + String(height) + "\n");
-        } else if(height > TOP) {
-          // height = TOP;
-          height = N_PIXELS;
-          log("\tloop -> listen -> height -> " + String(height) + "\n");
-        }
-        if(height > peak) {
-          peak = height; // Keep 'peak' dot at top
-          log("\tloop -> listen -> peak -> " + String(peak) + "\n");
-        }
-
-        // Color pixels based on rainbow gradient
-        for(i=0; i<N_PIXELS; i++) {
-          if(i >= height) {
-            log("\tlisten -> setting color -> i/N_PIXELS/height -> " + String(i) + "/" + String(N_PIXELS) + "/" + String(height) + "\n");
-            // strip.setPixelColor(i,black);
-            strip.setPixelColor(i,listenColor);
-          }
-          else {
-            // strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
-            // strip.setPixelColor(i,listenColor);
-            // strip.setPixelColor(i,black);
-            strip.setPixelColor(i,white);
-          }
-          // added
-          // strip.show(); // Update strip
-        }
-
-        strip.show(); // Update strip
-
-        // Draw peak dot
-        if(peak > 0 && peak <= N_PIXELS-1) {
-          log("\tloop -> listen -> peak_dot -> " + String(peak) + "\n");
-          // strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
-          strip.setPixelColor(peak,listenColor);
-          // strip.setPixelColor(peak,black);
-          strip.show(); // Update strip
-        }
-
-        // Every few frames, make the peak pixel drop by 1:
-        if(++dotCount >= PEAK_FALL) { //fall rate
-          if(peak > 0) {
-            peak--;
-          }
-          dotCount = 0;
-          log("\tloop -> listen -> peak_fall_rate-> " + String(peak) + "\n");
-        }
-
-        vol[volCount] = n;                      // Save sample for dynamic leveling
-        if(++volCount >= SAMPLES) {
-          volCount = 0; // Advance/rollover sample counter
-        }
-        log("\tloop -> listen -> volCount/SAMPLES -> " + String(volCount) + "/" + String(SAMPLES) + "\n");
-
-        // Get volume range of prior frames
-        minLvl = maxLvl = vol[0];
-        log("\tloop -> listen -> minLvl -> " + String(minLvl) + "\n");
-        for(i=1; i<SAMPLES; i++) {
-          if(vol[i] < minLvl) {
-            minLvl = vol[i];
-            log("\tloop -> listen -> minLvl -> " + String(minLvl) + "\n");
-          } else if(vol[i] > maxLvl) {
-            maxLvl = vol[i];
-            log("\tloop -> listen -> maxLvl -> " + String(maxLvl) + "\n");
-          }
-        }
-        // minLvl and maxLvl indicate the volume range over prior frames, used
-        // for vertically scaling the output graph (so it looks interesting
-        // regardless of volume level).  If they're too close together though
-        // (e.g. at very low volume levels) the graph becomes super coarse
-        // and 'jumpy'...so keep some minimum distance between them (this
-        // also lets the graph go to zero when no sound is playing):
-        // if((maxLvl - minLvl) < TOP) {
-        if((maxLvl - minLvl) < N_PIXELS) {
-          // maxLvl = minLvl + TOP;
-          maxLvl = minLvl + N_PIXELS;
-          log("\tloop -> listen -> maxLvl -> " + String(maxLvl) + "\n");
-        }
-        minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
-        maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
-        **/
         log("\tloop -> listen -> bottom\n");
       }
       if (animationState == 136){
@@ -862,7 +765,7 @@ void listen(uint32_t c) {
 
 //Pulse from center of the strand
 void pulse() {
-  fade(0.75);   //Listed below, this function simply dims the colors a little bit each pass of loop()
+  // fade(0.75);   //Listed below, this function simply dims the colors a little bit each pass of loop()
 
   //Advances the gradient to the next noticeable color if there is a "bump"
   if (bump) gradient += 64;
@@ -870,11 +773,15 @@ void pulse() {
   //If it's silent, we want the fade effect to take over, hence this if-statement
   if (volume > 0) {
     uint32_t col = getRainbow(gradient); //Our retrieved 32-bit color
+    // uint32_t col = getRainbow(listenColor); //Our retrieved 32-bit color
 
     //These variables determine where to start and end the pulse since it starts from the middle of the strand.
     //  The quantities are stored in variables so they only have to be computed once.
-    int start = LED_HALF - (LED_HALF * (volume / maxVol));
-    int finish = LED_HALF + (LED_HALF * (volume / maxVol)) + strip.numPixels() % 2;
+    // int start = LED_HALF - (LED_HALF * (volume / maxVol));
+    int start = 0;
+    // int finish = LED_HALF + (LED_HALF * (volume / maxVol)) + strip.numPixels() % 2;
+    int finish = LED_HALF + (LED_HALF * (volume / maxVol)) + strip.numPixels() *.25;
+    // int finish = N_PIXELS;
     //Listed above, LED_HALF is simply half the number of LEDs on your strand. ↑ this part adjusts for an odd quantity.
 
     for (int i = start; i < finish; i++) {
@@ -890,11 +797,21 @@ void pulse() {
       //  strand.Color() takes 3 values between 0 & 255, and returns a 32-bit integer.
       //  Notice "knob" affecting the brightness, as in the rest of the visuals.
       //  Also notice split() being used to get the red, green, and blue values.
+      /**
       strip.setPixelColor(i, strip.Color(
                              split(col, 0) * pow(damp, 2.0),
                              split(col, 1) * pow(damp, 2.0),
                              split(col, 2) * pow(damp, 2.0)
                            ));
+
+      strip.setPixelColor(i, strip.Color(
+                             split(col, 0) * pow(damp, 2.0),
+                             split(col, 255) * pow(damp, 2.0),
+                             split(col, 0) * pow(damp, 2.0)
+                           ));      
+      **/
+                                       
+      strip.setPixelColor(i, listenColor);
     }
     //Sets the max brightness of all LEDs. If it's loud, it's brighter.
     //  "knob" was not used here because it occasionally caused minor errors in color display.

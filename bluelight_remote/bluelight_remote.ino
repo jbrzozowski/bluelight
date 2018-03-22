@@ -97,13 +97,13 @@ int
   minLvlAvg = 0,      // For dynamic adjustment of graph low & high
   maxLvlAvg = 512;
 
-  uint16_t gradient = 0; //Used to iterate and loop through each color palette gradually
-  uint8_t volume = 0;    //Holds the volume level read from the sound detector.
-  uint8_t last = 0;      //Holds the value of volume from the previous loop() pass.
-  float maxVol = 15;     //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
-  float avgVol = 0;      //Holds the "average" volume-level to proportionally adjust the visual experience.
-  float avgBump = 0;     //Holds the "average" volume-change to trigger a "bump."
-  bool bump = false;     //Used to pass if there was a "bump" in volume
+uint16_t gradient = 0; //Used to iterate and loop through each color palette gradually
+uint8_t volume = 0;    //Holds the volume level read from the sound detector.
+uint8_t last = 0;      //Holds the value of volume from the previous loop() pass.
+float maxVol = 15;     //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
+float avgVol = 0;      //Holds the "average" volume-level to proportionally adjust the visual experience.
+float avgBump = 0;     //Holds the "average" volume-change to trigger a "bump."
+bool bump = false;     //Used to pass if there was a "bump" in volume
 
 // Setup
 void setup(void)
@@ -563,6 +563,7 @@ void loop(void) {
         }
         minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
         maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
+        **/
         log("\tloop -> listen -> bottom\n");
       }
       if (animationState == 136){
@@ -630,7 +631,7 @@ void loop(void) {
           maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
         log("\tloop -> listen -> bottom\n");
       }
-      /**
+    /**
     } else {
       log(("loop -> animationState == lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
     }

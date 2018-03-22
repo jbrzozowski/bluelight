@@ -191,8 +191,13 @@ void loop(void) {
   // delay(1000);                   // wait for a second
   log("loop -> top\n");
   log("loop -> animationState = " + String(animationState) + "\n");
-  // Check for user input
 
+  // listen mode definitions
+  uint8_t  i;
+  uint16_t minLvl, maxLvl;
+  int      n, height;
+
+  // Check for user input
   // Echoeing data received back to the sender
   if (getUserInput(inputs, BUFSIZE)) {
     // Send characters to Bluefruit
@@ -412,9 +417,6 @@ void loop(void) {
         // direct mode
         log("\tloop -> listen -> top\n");
         uint32_t listenColor = red;
-        uint8_t  i;
-        uint16_t minLvl, maxLvl;
-        int      n, height;
 
         n   = analogRead(MIC_PIN);            // Raw reading from mic
         n   = abs(n - 512 - DC_OFFSET);       // Center on zero
@@ -480,9 +482,6 @@ void loop(void) {
         // strip.show();
         log("\tloop -> listen -> top\n");
         uint32_t listenColor = blue;
-        uint8_t  i;
-        uint16_t minLvl, maxLvl;
-        int      n, height;
 
         n   = analogRead(MIC_PIN);            // Raw reading from mic
         n   = abs(n - 512 - DC_OFFSET);       // Center on zero

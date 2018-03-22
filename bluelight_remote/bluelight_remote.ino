@@ -205,9 +205,11 @@ void loop(void) {
   log("loop -> animationState = " + String(animationState) + "\n");
 
   // listen mode definitions
+  /**
   uint8_t  i;
   uint16_t minLvl, maxLvl;
   int      n, height;
+  **/
 
   // Check for user input
   // Echoeing data received back to the sender
@@ -231,8 +233,9 @@ void loop(void) {
   // Control for BLE buffer debug
   log("loop -> received = " + bleBuffer + "\n");
 
+  // if (strcmp(ble.buffer, "OK") == 0) {
   /**
-  if (strcmp(ble.buffer, "OK") == 0) {
+  if (bleBuffer.equals("OK") == 0) {
     // no data
     return;
   }
@@ -420,8 +423,8 @@ void loop(void) {
       // strip.show();
     }
   } else {
-    if(lastAnimationState != animationState) {
-      log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
+    // if(lastAnimationState != animationState) {
+      // log(("loop -> animationState != lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
       if (animationState == 128){
         // listenred
         // listen(red);
@@ -466,51 +469,85 @@ void loop(void) {
         uint32_t listenColor = red;
 
         n   = analogRead(MIC_PIN);            // Raw reading from mic
+        log("\tloop -> listen -> analog_read -> " + String(n) + "\n");
         n   = abs(n - 512 - DC_OFFSET);       // Center on zero
+        log("\tloop -> listen after_abs -> " + String(n) + "\n");
         n   = (n <= NOISE) ? 0 : (n - NOISE); // Remove noise/hum
+        log("\tloop -> listen -> after_noise_removal -> " + String(n) + "\n");
         lvl = ((lvl * 7) + n) >> 3;           // "Dampened" reading (else looks twitchy)
+        log("\tloop -> listen -> lvl -> " + String(lvl) + "\n");
 
         // Calculate bar height based on dynamic min/max levels (fixed point):
         height = TOP * (lvl - minLvlAvg) / (long)(maxLvlAvg - minLvlAvg);
+        log("\tloop -> listen -> height -> " + String(height) + "\n");
 
-        if(height < 0L)       height = 0;      // Clip output
-        else if(height > TOP) height = TOP;
-        if(height > peak)     peak   = height; // Keep 'peak' dot at top
-
+        if(height < 0L) {
+          height = 0;      // Clip output
+          log("\tloop -> listen -> height -> " + String(height) + "\n");
+        } else if(height > TOP) {
+          // height = TOP;
+          height = N_PIXELS;
+          log("\tloop -> listen -> height -> " + String(height) + "\n");
+        }
+        if(height > peak) {
+          peak = height; // Keep 'peak' dot at top
+          log("\tloop -> listen -> peak -> " + String(peak) + "\n");
+        }
 
         // Color pixels based on rainbow gradient
         for(i=0; i<N_PIXELS; i++) {
           if(i >= height) {
             log("\tlisten -> setting color -> i/N_PIXELS/height -> " + String(i) + "/" + String(N_PIXELS) + "/" + String(height) + "\n");
-            strip.setPixelColor(i,black);
+            // strip.setPixelColor(i,black);
+            strip.setPixelColor(i,listenColor);
           }
           else {
             // strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
-            strip.setPixelColor(i,listenColor);
+            // strip.setPixelColor(i,listenColor);
+            // strip.setPixelColor(i,black);
+            strip.setPixelColor(i,white);
           }
+          // added
+          // strip.show(); // Update strip
         }
+
+        strip.show(); // Update strip
 
         // Draw peak dot
         if(peak > 0 && peak <= N_PIXELS-1) {
+          log("\tloop -> listen -> peak_dot -> " + String(peak) + "\n");
           // strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
           strip.setPixelColor(peak,listenColor);
+          // strip.setPixelColor(peak,black);
           strip.show(); // Update strip
         }
 
         // Every few frames, make the peak pixel drop by 1:
         if(++dotCount >= PEAK_FALL) { //fall rate
-          if(peak > 0) peak--;
+          if(peak > 0) {
+            peak--;
+          }
           dotCount = 0;
+          log("\tloop -> listen -> peak_fall_rate-> " + String(peak) + "\n");
         }
 
         vol[volCount] = n;                      // Save sample for dynamic leveling
-        if(++volCount >= SAMPLES) volCount = 0; // Advance/rollover sample counter
+        if(++volCount >= SAMPLES) {
+          volCount = 0; // Advance/rollover sample counter
+        }
+        log("\tloop -> listen -> volCount/SAMPLES -> " + String(volCount) + "/" + String(SAMPLES) + "\n");
 
         // Get volume range of prior frames
         minLvl = maxLvl = vol[0];
+        log("\tloop -> listen -> minLvl -> " + String(minLvl) + "\n");
         for(i=1; i<SAMPLES; i++) {
-          if(vol[i] < minLvl)      minLvl = vol[i];
-          else if(vol[i] > maxLvl) maxLvl = vol[i];
+          if(vol[i] < minLvl) {
+            minLvl = vol[i];
+            log("\tloop -> listen -> minLvl -> " + String(minLvl) + "\n");
+          } else if(vol[i] > maxLvl) {
+            maxLvl = vol[i];
+            log("\tloop -> listen -> maxLvl -> " + String(maxLvl) + "\n");
+          }
         }
         // minLvl and maxLvl indicate the volume range over prior frames, used
         // for vertically scaling the output graph (so it looks interesting
@@ -518,17 +555,21 @@ void loop(void) {
         // (e.g. at very low volume levels) the graph becomes super coarse
         // and 'jumpy'...so keep some minimum distance between them (this
         // also lets the graph go to zero when no sound is playing):
-        if((maxLvl - minLvl) < TOP) maxLvl = minLvl + TOP;
-          minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
-          maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
-          **/
+        // if((maxLvl - minLvl) < TOP) {
+        if((maxLvl - minLvl) < N_PIXELS) {
+          // maxLvl = minLvl + TOP;
+          maxLvl = minLvl + N_PIXELS;
+          log("\tloop -> listen -> maxLvl -> " + String(maxLvl) + "\n");
+        }
+        minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
+        maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
         log("\tloop -> listen -> bottom\n");
       }
       if (animationState == 136){
         // listenblue
         // listen(blue);
         // strip.show();
-        log("\tloop -> listen -> top\n");
+        log("r\tloop -> listen -> top\n");
         uint32_t listenColor = blue;
 
         n   = analogRead(MIC_PIN);            // Raw reading from mic
@@ -589,9 +630,11 @@ void loop(void) {
           maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
         log("\tloop -> listen -> bottom\n");
       }
+      /**
     } else {
       log(("loop -> animationState == lastAnimationState -> " + String(animationState) + "/" + String(lastAnimationState) + "\n"));
     }
+    **/
   }
 
   log(("loop -> bottom\n"));
@@ -606,7 +649,7 @@ void loop(void) {
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos) {
-  log(("\tWheel -> top\n"));
+  log(("\tWheel -> top -> " + String(WheelPos) + "\n"));
   if(WheelPos < 85) {
     log(("\tWheel -> 1\n"));
     return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);

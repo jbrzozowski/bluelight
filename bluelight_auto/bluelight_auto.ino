@@ -77,20 +77,22 @@ bool bdebug = false;
 String lastcmd = "";
 String bleBuffer = "";
 bool listening = false;
-String ROLE = "JEDI";
+String ROLE = "CBLU";
 int startMs = 0;
 int startS = 0;
 int timer = 0;
 int timerMs = 0;
 int currentMs = 0;
 int state = 0;
-const int DURATION = 307;                     // Duration of the main loop
-const int t0 = START_DELAY;                   // from go to t1, show time
-const int t1 = START_DELAY+91;                // track1 end
-const int t2 = (START_DELAY-10)+157;          // track2 end
-const int t3 = (START_DELAY-DRIFT+2)+233;     // track3 end
-const int t4 = (START_DELAY-DRIFT+2)+248;     // track4 end
-const int t5 = (START_DELAY-DRIFT+1)+307;     // track5 end
+int runningState = 0;
+const int DURATION = 307;                             // Duration of the main loop
+const int t0 = START_DELAY;                           // from start to t1, show time - all lights are off
+const int t1 = (START_DELAY-2)+91;                    // track1 - first song
+const int t2 = (START_DELAY-6)+157;                   // track2 - second song
+const int t3 = (START_DELAY-DRIFT-5)+233;             // track3 - third song
+const int t4 = (START_DELAY-DRIFT-4)+248;             // track4 - all lights off for a short period of time 
+// const int t5 = (START_DELAY-DRIFT-1)+307;          
+const int t5 = DURATION;                              // track5 - last song follow up by all lights off
 
 // Color and animation state definitions
 uint32_t blue = strip.Color(0,0,255);
@@ -197,7 +199,7 @@ void setup(void)
     // Change Mode LED Activity
     Serial.println(F("setup -> change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
-    ble.sendCommandCheckOK("AT+GAPDEVNAME=JEDI");
+    ble.sendCommandCheckOK("AT+GAPDEVNAME=CBLU");
   }
 
   // ROLE=String(ble.sendCommandCheckOK("AT+GAPDEVNAME"));
@@ -218,7 +220,6 @@ void setup(void)
 // Main loop
 void loop(void) {
   digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
-  // delay(1000);                   // wait for a second
   log("loop -> top -> " + String(timer) + "\n");
   log("loop -> animationState = " + String(animationState) + "\n");
 
@@ -403,7 +404,7 @@ void loop(void) {
       // Lightshow has started, phase t5
       state = 5;
     }    
-    else if (timer > DURATION) {
+    else if (timer >= t5) {
       state = 0;
     }
 
@@ -412,7 +413,7 @@ void loop(void) {
     if(state == 0) {
       int actualt0Ms = millis();
       int actualt0S = actualt0Ms/1000;
-      log(("loop -> t0 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt0Ms = " + String(actualt0Ms) + " -> actualt0S = " + String(actualt0S) + "\n"));
+      log(("loop -> t0 -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> actualt0Ms = " + String(actualt0Ms) + " -> actualt0S = " + String(actualt0S) + "\n"));
       // the clock is ticking, everyone is off
       off();
     }
@@ -457,14 +458,14 @@ void loop(void) {
         // CRED @ t2
         log(("loop -> t2 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
         // rainbow
-        delay(2000);
+        // delay(2000);
         theaterChaseRainbow(DELAY);
       }
       if(ROLE.equals("CBLU")) {
         // CRBLU @ t2   
         log(("loop -> t2 -> CBLU-> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
         // rainbow
-        delay(2000);        
+        // delay(2000);        
         theaterChaseRainbow(DELAY);        
       }    
     }
@@ -516,7 +517,7 @@ void loop(void) {
         // JEDI @ t5
         log(("loop -> t5 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
         // wipeblue
-        delay(4000);
+        // delay(4000);
         colorWipe(blue, DELAY);
         colorWipe(black, DELAY);
       } else {
@@ -525,15 +526,14 @@ void loop(void) {
         colorWipe(blue, DELAY);
         colorWipe(black, DELAY);                
       }
-    } else {
-      off();
-      timer = 0;
-      int endMs = millis();
-      int endS = endMs/1000;
-      log(("loop -> animationState = " + String(animationState) + " -> startMs = " + String(endMs) + " -> startS = " + String(endS) + "\n"));      
     }
     // timer++;
     // Showtime end
+    // off();
+    // timer = 0;
+    int endMs = millis();
+    int endS = endMs/1000;
+    log(("loop -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> startMs = " + String(endMs) + " -> startS = " + String(endS) + "\n"));    
   }
   
   log(("loop -> bottom -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));  // turn the LED off by making the voltage LOW

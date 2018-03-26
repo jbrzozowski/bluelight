@@ -119,7 +119,7 @@ This paragraph must be included in any redistribution.
     #define MODE_LED_BEHAVIOUR          "MODE"
     #define LED_PIN                       6
     #define BOARD_PIN                     13  // NeoPixel LED strand is connected to this pin
-    #define N_PIXELS                      50
+    #define N_PIXELS                      73
     #define MIC_PIN                       A0
     #define DC_OFFSET                     0  // DC offset in mic signal - if unusure, leave 0
     #define NOISE                         10  // Noise/hum/interference in mic signal, default 10

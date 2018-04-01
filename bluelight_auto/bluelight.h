@@ -22,9 +22,9 @@
 // The following macros declare the HW serial port you are using. Uncomment
 // this line if you are connecting the BLE to Leonardo/Micro or Flora
 // ----------------------------------------------------------------------------------------------
-#ifdef Serial1    // this makes it not complain on compilation if there's no Serial1
+// #ifdef Serial1    // this makes it not complain on compilation if there's no Serial1
   #define BLUEFRUIT_HWSERIAL_NAME      Serial1
-#endif
+// #endif
 
 
 // SHARED UART SETTINGS

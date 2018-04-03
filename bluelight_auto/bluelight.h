@@ -121,13 +121,15 @@ This paragraph must be included in any redistribution.
     #define BOARD_PIN                     13  // NeoPixel LED strand is connected to this pin
     #define N_PIXELS                      73
     #define MIC_PIN                       A0
-    #define DC_OFFSET                     0  // DC offset in mic signal - if unusure, leave 0
-    #define NOISE                         10  // Noise/hum/interference in mic signal, default 10
-    #define SAMPLES                       15  // Length of buffer for dynamic level adjustment, default 60
-    #define TOP                           (N_PIXELS + 5) // Allow dot to go slightly off scale, default +2
-    #define PEAK_FALL                     3  // Rate of peak falling dot, default 40
+
     #define BRIGHTNESS                    64  // Brightness level for the entire LED strip
     #define LED_HALF                      N_PIXELS/2
     #define START_DELAY                   30
     #define DRIFT                         15
+
+    #define DC_OFFSET  0  // DC offset in mic signal - if unusure, leave 0
+    #define NOISE     65  // Noise/hum/interference in mic signal, default 10
+    #define SAMPLES   20  // Length of buffer for dynamic level adjustment, default 60
+    #define TOP       (N_PIXELS+5) // Allow dot to go slightly off scale, default +2
+    #define PEAK_FALL 5  // Rate of peak falling dot, default 40
 /*=========================================================================*/

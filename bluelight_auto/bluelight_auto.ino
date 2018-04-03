@@ -70,18 +70,21 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB);
 // Constants
 // Role
 String ROLE = "JEDI";
+int startDelay = START_DELAY;
 // Duration of the main loop
-const int DURATION = 307;
+// const int DURATION = 307;
+const int DURATION = 337;
 // from start to t1, show time - all lights are off
-const int t0 = START_DELAY;
+int t0 = startDelay;
 // track1 - first song
-const int t1 = (START_DELAY)+91;
+int t1 = (startDelay)+91;
 // track2 - second song
-const int t2 = (START_DELAY)+157;
+int t2 = (startDelay)+157;
 // track3 - third song  //-6 && removed DRIFT
-const int t3 = (START_DELAY-13)+233;
+int t3 = (startDelay-13)+233;
 // track4 - all lights off for a short period of time //-13 && removed DRIFT
-const int t4 = (START_DELAY-11)+248; // used to be -15
+// int t4 = (startDelay-11)+248; // used to be -15
+int t4 = (startDelay-11)+268; // used to be -15
 // const int t5 = (START_DELAY-DRIFT-1)+307;
 // track5 - last song follow up by all lights off
 const int t5 = DURATION;
@@ -106,8 +109,11 @@ int currentMs = 0;
 int state = 0;
 int runningState = 0;
 String deviceAddress = "";
-int resetPressCount = 0;
-int resetTimerMs = 0;
+String deviceNameBase = "JEDI";
+String deviceNameSuffix = " (UNKNOWN)";
+String deviceName = "";
+String deviceNameCommand = "";
+int loopCheck = 0;
 
 // Color and animation state definitions
 uint32_t blue = strip.Color(0,0,255);
@@ -128,6 +134,11 @@ int
   lvl       = 10,      // Current "dampened" audio level
   minLvlAvg = 0,      // For dynamic adjustment of graph low & high
   maxLvlAvg = 512;
+
+// listen mode variables
+uint8_t  listenc;
+uint16_t minLvl, maxLvl;
+int      n, height;
 
 uint16_t gradient = 0; //Used to iterate and loop through each color palette gradually
 uint8_t volume = 0;    //Holds the volume level read from the sound detector.
@@ -166,6 +177,7 @@ void setup(void)
 
   // BLE setup
   if (!ble.begin(VERBOSE_MODE)) {
+    ble.println("AT+BLEUARTRX");
     Serial.println("setup -> couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?");
   } else {
     Serial.println("setup -> OK");
@@ -174,7 +186,8 @@ void setup(void)
   if (FACTORYRESET_ENABLE) {
     /* Perform a factory reset to make sure everything is in a known state */
     Serial.println("setup -> performing a factory reset");
-    if ( ! ble.factoryReset() ){
+    if (!ble.factoryReset()){
+      ble.println("AT+BLEUARTRX");
       Serial.println("setup -> couldn't factory reset");
     }
   } else {
@@ -184,50 +197,43 @@ void setup(void)
   // Enable/Disable command echo from Bluefruit
   if(bdebug) {
     ble.echo(true);
+    ble.println("AT+BLEUARTRX");
   } else {
     ble.echo(false);
+    ble.println("AT+BLEUARTRX");
   }
 
   // Enable/Disable Bluefruit verbosity
   if (bdebug) {
     ble.verbose(true);
+    ble.println("AT+BLEUARTRX");
   } else {
     ble.verbose(false);
+    ble.println("AT+BLEUARTRX");
   }
 
   /* Wait for connection */
-  while (! ble.isConnected()) {
+  while (!ble.isConnected()) {
+      ble.println("AT+BLEUARTRX");
       delay(500);
   }
 
   // LED Activity command is only supported from 0.6.6
   if (ble.isVersionAtLeast(MINIMUM_FIRMWARE_VERSION)) {
-    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL");
-    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL=4");
-    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL");
-    // ble.sendCommandCheckOK("AT+BLEGETADDR");
-    ble.sendCommandCheckOK("AT+GAPCONNECTABLE");
-    ble.println("AT+BLEGETADDR");
     ble.println("AT+BLEUARTRX");
+    ble.println("AT+BLEGETADDR");
+    // ble.println("AT+BLEUARTRX");
 
-    int maxMacReadCount = 3;
-    // for(int z = 0; z < maxMacReadCount; z++) {
     while (ble.readline()) {
-      // ble.println("AT+BLEUARTRX");
-      // ble.readline();
-      // Serial.println("setup -> buffer -> " + String(z));
       Serial.println("setup -> ble.buffer -> " + String(ble.buffer));
       String buffer = String(ble.buffer);
       Serial.println("setup -> buffer -> " + buffer);
-      // if (buffer.equals("OK") == 0) {
-        // Serial.println("setup -> skipping OK");
-        //// continue;
-      // } else {
-      deviceAddress += buffer;
+      if(buffer.equals("OK")) {
+        continue;
+      } else {
+        deviceAddress += buffer;
+      }
       Serial.println("setup -> deviceAddress -> " + String(deviceAddress));
-      // }
-      // delay(500);
-      // ble.waitForOK();
     }
 
     deviceAddress.replace("OK","");
@@ -235,13 +241,171 @@ void setup(void)
 
     Serial.println("setup -> final deviceAddress -> " + String(deviceAddress));
 
-    String deviceNameCommand = "AT+GAPDEVNAME=";
-    String deviceName = "JEDI";
-    deviceName += " ("+deviceAddress+")";
+    // deviceAddress to deviceName mapping
+    // Controller units
+    if(deviceAddress.equals("E137E7E43A75")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (_MAIN)";
+    }
+    if(deviceAddress.equals("DEADBEEFCAFE")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (_BACKUP)";
+    }
+    // JEDI
+    if(deviceAddress.equals("E6EFEFFA02C1")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Johan)";
+    }
+    if(deviceAddress.equals("FA4120D2C91E")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (LiamM)";
+    }
+    if(deviceAddress.equals("F40D027498BF")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (LiamB)";
+    }
+    if(deviceAddress.equals("FD2BC8414E31")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Katrina)";
+    }
+    if(deviceAddress.equals("F177C6C39E1B")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (JackMag)";
+    }
+    if(deviceAddress.equals("C56B1E27AE97")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (JackMcL)";
+    }
+    if(deviceAddress.equals("EFC103572EAC")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Joey)";
+    }
+    if(deviceAddress.equals("C4A4B1181F4C")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Greg)";
+    }
+    if(deviceAddress.equals("FE74C6D5F6FF")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Julian)";
+    }
+    if(deviceAddress.equals("C0F156EBFD25")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Ben)";
+    }
+    if(deviceAddress.equals("E7EFC57D4394")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Yemi)";
+    }
+    if(deviceAddress.equals("FE499044E396")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Marlee)";
+    }
+    if(deviceAddress.equals("F2B469E62281")) {
+      deviceNameBase = "JEDI";
+      deviceNameSuffix = " (Callie)";
+    }
+    // Crowd red
+    if(deviceAddress.equals("E829D03B9468")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (MadisonR)";
+    }
+    if(deviceAddress.equals("E3C5C04E8409")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (SofiaB)";
+    }
+    if(deviceAddress.equals("CCE758AEE102")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (Molly)";
+    }
+    if(deviceAddress.equals("DDB8C012D919")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (SophieW)";
+    }
+    if(deviceAddress.equals("E736AE157CD1")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (Quinn)";
+    }
+    if(deviceAddress.equals("E1CBAB612F3C")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (Anna)";
+    }
+    if(deviceAddress.equals("F1625AB398EC")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (SydneyP)";
+    }
+    if(deviceAddress.equals("E5900506E163")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (Ashley)";
+    }
+    if(deviceAddress.equals("F98B42202CB3")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (SidneyD)";
+    }
+    if(deviceAddress.equals("D73B200A1044")) {
+      deviceNameBase = "CRED";
+      deviceNameSuffix = " (Krystal)";
+    }
+    // Crowd blue
+    if(deviceAddress.equals("EBA66841CBCC")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Unathi)";
+    }
+    if(deviceAddress.equals("D8FE84E8B2BE")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Ava)";
+    }
+    if(deviceAddress.equals("E878900748DC")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Michaela)";
+    }
+    if(deviceAddress.equals("C959CC1FB381")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Julia)";
+    }
+    if(deviceAddress.equals("F6D9041FF758")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Melody)";
+    }
+    if(deviceAddress.equals("EF1EAD9E88BC")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Isabella)";
+    }
+    if(deviceAddress.equals("D2CAF26ADD1D")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Lola)";
+    }
+    if(deviceAddress.equals("D2AE8CAAC59E")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Isa)";
+    }
+    if(deviceAddress.equals("EAC11D36CD40")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Emerson)";
+    }
+    if(deviceAddress.equals("E82D6ABE15FC")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Adrienne)";
+    }
+    if(deviceAddress.equals("C1A89FD1ECDB")) {
+      deviceNameBase = "CBLU";
+      deviceNameSuffix = " (Brianna)";
+    }
+
+    deviceName += deviceNameBase;
+    deviceName += deviceNameSuffix;
+    deviceNameCommand = "AT+GAPDEVNAME=";
     deviceNameCommand += deviceName;
     Serial.println("setup -> deviceNameCommand -> " + String(deviceNameCommand));
     ble.println(deviceNameCommand);
     // ble.sendCommandCheckOK("AT+GAPDEVNAME=JEDI");
+
+    // Increasing BLE power level
+    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL");
+    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL=4");
+    ble.sendCommandCheckOK("AT+BLEPOWERLEVEL");
+    // ble.sendCommandCheckOK("AT+BLEGETADDR");
+    // Checking if connectable
+    ble.sendCommandCheckOK("AT+GAPCONNECTABLE");
 
     // Change Mode LED Activity
     Serial.println(F("setup -> change LED activity to " MODE_LED_BEHAVIOUR));
@@ -272,6 +436,7 @@ void setup(void)
 
 // Main loop
 void loop(void) {
+  loopCheck++;
   // Code to intercept reset button pressing
   /**
   if (digitalRead(1) == LOW) {
@@ -293,15 +458,11 @@ void loop(void) {
     log("loop -> reset long press\n");
   }
   **/
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
   digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
-  log("loop -> deviceAddress = " + deviceAddress + "\n");
-  log("loop -> top -> " + String(timer) + " -> animationState = " + String(animationState) + "\n");
-
-  // listen mode definitions
-  uint8_t  i;
-  uint16_t minLvl, maxLvl;
-  int      n, height;
-
+  // log("loop -> deviceAddress = " + deviceAddress + "\n");
+  log("loop -> top -> " + String(timer) + " -> animationState = " + String(animationState) + " -> listening -> " + String(listening) + "\n");
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
   // Check for user input
   // Echoeing data received back to the sender
   /**
@@ -325,7 +486,7 @@ void loop(void) {
   bleBuffer = String(ble.buffer);
   // Control for BLE buffer debug
   log("loop -> received = " + bleBuffer + "\n");
-
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
   // if (strcmp(ble.buffer, "OK") == 0) {
   /**
   if (bleBuffer.equals("OK") == 0) {
@@ -334,7 +495,34 @@ void loop(void) {
   }
   **/
 
-// Processing of control mode messages received over bluetooth
+  if (bleBuffer.startsWith("delay")) {
+      log("loop -> overriding start_delay -> " + String(bleBuffer) + "\n");
+      String newDelay = bleBuffer;
+      newDelay.replace("delay=","");
+      log("loop -> overriding start_delay new start_delay -> " + String(newDelay) + "\n");
+      startDelay = newDelay.toInt();
+      updateStartDelay(startDelay);
+      log("loop -> overriding start_delay is now -> " + String(startDelay) + "\n");
+      lastcmd = bleBuffer;
+  }
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+  if (bleBuffer.startsWith("listen")) {
+      log("loop -> listening set to true\n");
+      listening = true;
+      // lastcmd = bleBuffer;
+      if (bleBuffer.equals("listenred")) {
+        log("loop -> setting animationState = listenred\n");
+        animationState = 128;
+        lastcmd = bleBuffer;
+      }
+      if (bleBuffer.equals("listenblue")) {
+        log("loop -> setting animationState = listenblue\n");
+        animationState = 136;
+        lastcmd = bleBuffer;
+      }
+  }
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+  // Processing of control mode messages received over bluetooth
   if(!listening) {
     lastAnimationState = animationState;
     if (bleBuffer.equals("off")) {
@@ -342,95 +530,97 @@ void loop(void) {
         animationState = 0;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("start")) {
+    else if (bleBuffer.equals("start")) {
         log("loop -> setting animationState = start\n");
         animationState = 1;
         lastcmd = bleBuffer;
         startMs = millis();
         startS = startMs/1000;
     }
-    if (bleBuffer.equals("blue")) {
+    else if (bleBuffer.equals("blue")) {
         log("loop -> setting animationState = blue\n");
         animationState = 8;
         lastcmd = bleBuffer;
         lastAnimationState = animationState;
     }
-    if (bleBuffer.equals("red")) {
+    else if (bleBuffer.equals("red")) {
         log("loop -> setting animationState = red\n");
         animationState = 16;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("rainbow")) {
+    else if (bleBuffer.equals("rainbow")) {
         log("loop -> setting animationState = rainbow\n");
         animationState = 32;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("wipeblue")) {
+    else if (bleBuffer.equals("wipeblue")) {
         log("loop -> setting animationState = wipeblue\n");
         animationState = 40;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("wipered")) {
+    else if (bleBuffer.equals("wipered")) {
         log("loop -> setting animationState = wipered\n");
         animationState = 48;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("wipewhite")) {
+    else if (bleBuffer.equals("wipewhite")) {
         log("loop -> setting animationState = wipewhite\n");
         animationState = 56;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("wipegreen")) {
+    else if (bleBuffer.equals("wipegreen")) {
         log("loop -> setting animationState = wipegreen\n");
         animationState = 64;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("rainbowcycle")) {
+    else if (bleBuffer.equals("rainbowcycle")) {
         log("loop -> setting animationState = rainbowcycle\n");
         animationState = 72;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("rainbowtheater")) {
+    else if (bleBuffer.equals("rainbowtheater")) {
         log("loop -> setting animationState = rainbowtheater\n");
         animationState = 80;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("theaterchase")) {
+    else if (bleBuffer.equals("theaterchase")) {
         log("loop -> setting animationState = theaterchase\n");
         animationState = 88;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("test")) {
+    else if (bleBuffer.equals("test")) {
         log("loop -> setting animationState = test\n");
         animationState = 120;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("debugon")) {
+    else if (bleBuffer.equals("debugon")) {
         log("loop -> setting debug\n");
         debug = true;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("debugoff")) {
+    else if (bleBuffer.equals("debugoff")) {
         log("loop -> setting debug\n");
         debug = false;
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("bdebugon")) {
+    else if (bleBuffer.equals("bdebugon")) {
         log("loop -> setting debug\n");
         ble.echo(true);
         ble.verbose(true);
         lastcmd = bleBuffer;
     }
-    if (bleBuffer.equals("bdebugoff")) {
+    else if (bleBuffer.equals("bdebugoff")) {
         log("loop -> setting debug\n");
         ble.echo(false);
         ble.verbose(false);
         lastcmd = bleBuffer;
     }
-  } else {
+  }
+  /**
+  else {
       if(!bleBuffer.equals(lastcmd)) {
         lastAnimationState = animationState;
-        log("loop -> changing listen mode\n");
+        log("loop -> changing listen mode -> " + bleBuffer  + "\n");
         if (bleBuffer.equals("listenred")) {
           log("loop -> setting animationState = listenred\n");
           animationState = 128;
@@ -445,10 +635,11 @@ void loop(void) {
         log("loop -> last and current command are equal\n");
       }
     }
-
+    **/
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
   if (animationState == 0){
     // off
-    log(("loop -> animationState = " + String(animationState) + " -> off\n"));
+    log("loop -> animationState = " + String(animationState) + " -> off\n");
     off();
     // strip.show();
   }
@@ -460,7 +651,7 @@ void loop(void) {
     currentMs = millis();
     timerMs = currentMs - startMs;
     timer = timerMs/1000;
-    log(("loop -> animationState = " + String(animationState) + " -> startMs = " + String(startMs) + " -> startS = " + String(startS) + " -> currentMs = " + String(currentMs) + " -> timerMs = " + String(timerMs) + " -> timer = " + String(timer) + "\n"));
+    log("loop -> animationState = " + String(animationState) + " -> startMs = " + String(startMs) + " -> startS = " + String(startS) + " -> currentMs = " + String(currentMs) + " -> timerMs = " + String(timerMs) + " -> timer = " + String(timer) + "\n");
 
     // Checking timers and setting state flags
     if (timer <= t0) {
@@ -496,7 +687,7 @@ void loop(void) {
     if(state == 0) {
       int actualt0Ms = millis();
       int actualt0S = actualt0Ms/1000;
-      log(("loop -> t0 -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> actualt0Ms = " + String(actualt0Ms) + " -> actualt0S = " + String(actualt0S) + "\n"));
+      log("loop -> t0 -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> actualt0Ms = " + String(actualt0Ms) + " -> actualt0S = " + String(actualt0S) + "\n");
       // the clock is ticking, everyone is off
       off();
     }
@@ -504,23 +695,23 @@ void loop(void) {
     else if(state == 1) {
       int actualt1Ms = millis();
       int actualt1S = actualt1Ms/1000;
-      log(("loop -> t1 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt1Ms = " + String(actualt1Ms) + " -> actualt1S = " + String(actualt1S) + "\n"));
+      log("loop -> t1 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt1Ms = " + String(actualt1Ms) + " -> actualt1S = " + String(actualt1S) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
         // JEDI @ t1
-        log(("loop -> t1 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t1 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // blue
         solidColor(blue, DELAY);
       }
       if(ROLE.equals("CRED")) {
         // CRED @ t1
-        log(("loop -> t1 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t1 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // off
         off();
       }
       if(ROLE.equals("CBLU")) {
         // CRBLU @ t1
-        log(("loop -> t1 -> CBLU-> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t1 -> CBLU-> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // off
         off();
       }
@@ -529,17 +720,17 @@ void loop(void) {
     else if(state == 2) {
       int actualt2Ms = millis();
       int actualt2S = actualt2Ms/1000;
-      log(("loop -> t2 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt2Ms = " + String(actualt2Ms) + " -> actualt2S = " + String(actualt2S) + "\n"));
+      log("loop -> t2 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt2Ms = " + String(actualt2Ms) + " -> actualt2S = " + String(actualt2S) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
         // JEDI @ t2
         // delay(1000);
-        log(("loop -> t2 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t2 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         off();
       }
       if(ROLE.equals("CRED")) {
         // CRED @ t2
-        log(("loop -> t2 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t2 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // rainbow
         // delay(2000);
         theaterChaseRainbow(DELAY);
@@ -547,7 +738,7 @@ void loop(void) {
       }
       if(ROLE.equals("CBLU")) {
         // CRBLU @ t2
-        log(("loop -> t2 -> CBLU-> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t2 -> CBLU-> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // rainbow
         // delay(2000);
         theaterChaseRainbow(DELAY);
@@ -558,36 +749,44 @@ void loop(void) {
     else if(state == 3) {
       int actualt3Ms = millis();
       int actualt3S = actualt3Ms/1000;
-      log(("loop -> t3 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt3Ms = " + String(actualt3Ms) + " -> actualt3S = " + String(actualt3S) + "\n"));
+      // listening = true;
+      log("loop -> t3 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt3Ms = " + String(actualt3Ms) + " -> actualt3S = " + String(actualt3S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
         // JEDI @ t3
-        log(("loop -> t3 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
-        // wipeblue
+        log("loop -> t3 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // delay(5000);
-        colorWipe(blue, DELAY);
-        colorWipe(black, DELAY);
+        // wipeblue
+        // colorWipe(blue, DELAY);
+        // colorWipe(black, DELAY);
+        // listenblue
+        listen(blue);
       }
       if(ROLE.equals("CRED")) {
         // CRED @ t3
-        log(("loop -> t3 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t3 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // wipered
-        colorWipe(red, DELAY);
-        colorWipe(black, DELAY);
+        // colorWipe(red, DELAY);
+        // colorWipe(black, DELAY);
+        // listenred
+        listen(red);
       }
       if(ROLE.equals("CBLU")) {
         // CRBLU @ t3
-        log(("loop -> t3 -> CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
+        log("loop -> t3 -> CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // wipeblue
-        colorWipe(blue, DELAY);
-        colorWipe(black, DELAY);
+        // colorWipe(blue, DELAY);
+        // colorWipe(black, DELAY);
+        // listenblue
+        listen(blue);
       }
     }
    // t4
     else if(state == 4) {
       int actualt4Ms = millis();
       int actualt4S = actualt4Ms/1000;
-      log(("loop -> t4 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt4Ms = " + String(actualt4Ms) + " -> actualt4S = " + String(actualt4S) + "\n"));
+      // listening = false;
+      log("loop -> t4 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt4Ms = " + String(actualt4Ms) + " -> actualt4S = " + String(actualt4S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       // off
       off();
@@ -596,20 +795,28 @@ void loop(void) {
     else if(state == 5) {
       int actualt5Ms = millis();
       int actualt5S = actualt5Ms/1000;
-      log(("loop -> t5 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt5Ms = " + String(actualt5Ms) + " -> actualt5S = " + String(actualt5S) + "\n"));
+      listening = true;
+      log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+      log("loop -> t5 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt5Ms = " + String(actualt5Ms) + " -> actualt5S = " + String(actualt5S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
         // JEDI @ t5
-        log(("loop -> t5 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
-        // wipeblue
+        log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+        log("loop -> t5 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // delay(4000);
-        colorWipe(blue, DELAY);
-        colorWipe(black, DELAY);
-      } else {
-        log(("loop -> t5 -> CRED/CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));
         // wipeblue
-        colorWipe(blue, DELAY);
-        colorWipe(black, DELAY);
+        // colorWipe(blue, DELAY);
+        // colorWipe(black, DELAY);
+        // listenblue
+        listen(blue);
+      } else {
+        log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+        log("loop -> t5 -> CRED/CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
+        // wipeblue
+        // colorWipe(blue, DELAY);
+        // colorWipe(black, DELAY);
+        // listenblue
+        listen(blue);
       }
     }
     // timer++;
@@ -618,7 +825,7 @@ void loop(void) {
     // timer = 0;
     int endMs = millis();
     int endS = endMs/1000;
-    log(("loop -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> startMs = " + String(endMs) + " -> startS = " + String(endS) + "\n"));
+    log("loop -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> startMs = " + String(endMs) + " -> startS = " + String(endS) + "\n");
     digitalWrite(BOARD_PIN, LOW);
     delay(100);
     digitalWrite(BOARD_PIN, HIGH);
@@ -626,94 +833,100 @@ void loop(void) {
   }
   else if (animationState == 8){
     // blue
-    log(("loop -> animationState = " + String(animationState) + " -> solid_color -> blue\n"));
+    log("loop -> animationState = " + String(animationState) + " -> solid_color -> blue\n");
     solidColor(blue, DELAY);
     // strip.show();
   }
   else if (animationState == 16){
     // red
-    log(("loop -> animationState = " + String(animationState) + " -> solid_color -> red\n"));
+    log("loop -> animationState = " + String(animationState) + " -> solid_color -> red\n");
     solidColor(red, DELAY);
     // strip.show();
   }
   else if (animationState == 32){
     // rainbow
-    log(("loop -> animationState = " + String(animationState) + " -> rainbow\n"));
+    log("loop -> animationState = " + String(animationState) + " -> rainbow\n");
     rainbow(DELAY);
     // strip.show();
   }
   else if (animationState == 40){
     // wipeblue
-    log(("loop -> animationState = " + String(animationState) + " -> color_wipe -> blue\n"));
+    log("loop -> animationState = " + String(animationState) + " -> color_wipe -> blue\n");
     colorWipe(blue, DELAY);
     colorWipe(black, DELAY);
     // strip.show();
   }
   else if (animationState == 48){
     // wipered
-    log(("loop -> animationState = " + String(animationState) + " -> color_wipe -> red\n"));
+    log("loop -> animationState = " + String(animationState) + " -> color_wipe -> red\n");
     colorWipe(red, DELAY);
     colorWipe(black, DELAY);
     // strip.show();
   }
   else if (animationState == 56){
     // wipewhite
-    log(("loop -> animationState = " + String(animationState) + " -> color_wipe -> white\n"));
+    log("loop -> animationState = " + String(animationState) + " -> color_wipe -> white\n");
     colorWipe(white, DELAY);
     colorWipe(black, DELAY);
     // strip.show();
   }
   else if (animationState == 64){
     // wipegreen
-    log(("loop -> animationState = " + String(animationState) + " -> color_wipe -> green\n"));
+    log("loop -> animationState = " + String(animationState) + " -> color_wipe -> green\n");
     colorWipe(green, DELAY);
     colorWipe(black, DELAY);
     // strip.show();
   }
   else if (animationState == 72){
     // rainbow cycle
-    log(("loop -> animationState = " + String(animationState) + " -> rainbow_cycle\n"));
+    log("loop -> animationState = " + String(animationState) + " -> rainbow_cycle\n");
     rainbowCycle(DELAY);
     // strip.show();
   }
   else if (animationState == 80){
     // rainbowtheater
-    log(("loop -> animationState = " + String(animationState) + " -> rainbow_theater\n"));
+    log("loop -> animationState = " + String(animationState) + " -> rainbow_theater\n");
     theaterChaseRainbow(DELAY);
     // strip.show();
   }
   else if (animationState == 88){
     // theaterchase
-    log(("loop -> animationState = " + String(animationState) + " -> theater_chase\n"));
+    log("loop -> animationState = " + String(animationState) + " -> theater_chase\n");
     theaterChase(white, DELAY); // White
     theaterChase(green, DELAY); // Green
     theaterChase(red, DELAY); // Red
     theaterChase(blue, DELAY); // Blue
     // strip.show();
   }
-  else if (animationState == 128){
+  else if (animationState == 128) {
+    // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
     // listenred
-    log(("loop -> animationState = " + String(animationState) + " -> listen_red\n"));
-    test(DELAY);
+    log("loop -> animationState = " + String(animationState) + " -> listen_red\n");
+    listen(red);
     // strip.show();
   }
-  else if (animationState == 136){
+  else if (animationState == 136) {
+    // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
     // listenblue
-    log(("loop -> animationState = " + String(animationState) + " -> listen_blue\n"));
-    test(DELAY);
+    log("loop -> animationState = " + String(animationState) + " -> listen_blue\n");
+    listen(blue);
     // strip.show();
   }
   else if (animationState == 255){
     // test
-    log(("loop -> animationState = " + String(animationState) + " -> test\n"));
+    log("loop -> animationState = " + String(animationState) + " -> test\n");
     test(DELAY);
     // strip.show();
   }
-
-  log(("loop -> bottom -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n"));  // turn the LED off by making the voltage LOW
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+  log("loop -> bottom -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");  // turn the LED off by making the voltage LOW
   // digitalWrite(BOARD_PIN, HIGH);
   // delay(3000);
-  ble.waitForOK();
+  if(!listening) {
+    // log("loop -> ble_wait_for_ok\n");
+    ble.waitForOK();
+  }
+  // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
 }
 
 // Low level common routines
@@ -867,57 +1080,65 @@ void test(uint8_t wait) {
 
 // Low level routines for listening and adapting to audio
 void listen(uint32_t c) {
-  log("\tlisten -> top\n");
-  uint8_t  i;
-  uint16_t minLvl, maxLvl;
-  int      n, height;
-
-  n   = analogRead(MIC_PIN);            // Raw reading from mic
-  n   = abs(n - 512 - DC_OFFSET);       // Center on zero
-  n   = (n <= NOISE) ? 0 : (n - NOISE); // Remove noise/hum
-  lvl = ((lvl * 7) + n) >> 3;           // "Dampened" reading (else looks twitchy)
+  log("\tlisten -> top -> " + String(c) + "\n");
+  // Raw reading from mic
+  n   = analogRead(MIC_PIN);
+  // log("loop -> analogRead -> raw -> " + String(n));
+  n   = abs(n - 512 - DC_OFFSET); // Center on zero
+  //// log("\tlisten -> analogRead -> zeroed -> " + String(n) + "\n");
+  n   = (n <= NOISE) ? 0 : (n - NOISE);             // Remove noise/hum
+  //// log("\tlisten -> analogRead -> noise removed  -> " + String(n) + "\n");
+  //// log("\tlisten -> lvl -> before -> " + String(lvl) + "\n");
+  lvl = ((lvl * 7) + n) >> 3;    // "Dampened" reading (else looks twitchy)
+  //// log("\tlisten -> lvl -> dampened -> " + String(lvl) + "\n");
 
   // Calculate bar height based on dynamic min/max levels (fixed point):
   height = TOP * (lvl - minLvlAvg) / (long)(maxLvlAvg - minLvlAvg);
+  //// log("\tlisten -> height -> " + String(height) + "\n");
 
   if(height < 0L)       height = 0;      // Clip output
   else if(height > TOP) height = TOP;
   if(height > peak)     peak   = height; // Keep 'peak' dot at top
 
-
   // Color pixels based on rainbow gradient
-  for(i=0; i<N_PIXELS; i++) {
-    if(i >= height) {
-      log("\tlisten -> setting color -> i/N_PIXELS/height -> " + String(i) + "/" + String(N_PIXELS) + "/" + String(height) + "\n");
-      strip.setPixelColor(i,black);
-    }
-    else {
-      // strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,30,150)));
-      strip.setPixelColor(i,c);
+  for(listenc=0; listenc<N_PIXELS; listenc++) {
+    // log("\tlisten -> listenc -> " + String(listenc) + "\n");
+    if(listenc >= height) {
+      // log("\tlisten -> listenc -> set_to_000\n");
+      strip.setPixelColor(listenc,0,0,0);
+    } else {
+      // log("\tlisten -> listenc -> set_to_color\n");
+      strip.setPixelColor(listenc,c);
+    // else strip.setPixelColor(i,Wheel(map(i,0,strip.numPixels()-1,255,255)));
     }
   }
 
   // Draw peak dot
+  // if(peak > 0 && peak <= N_PIXELS-1) strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
   if(peak > 0 && peak <= N_PIXELS-1) {
-    // strip.setPixelColor(peak,Wheel(map(peak,0,strip.numPixels()-1,30,150)));
+    //// log("\tlisten -> listenc -> set_peak\n");
     strip.setPixelColor(peak,c);
-    strip.show(); // Update strip
   }
+
+  //// log("\tlisten -> strip_show\n");
+  strip.show(); // Update strip
 
   // Every few frames, make the peak pixel drop by 1:
   if(++dotCount >= PEAK_FALL) { //fall rate
+    //// log("\tlisten -> dotCount -> " + String(dotCount) + "\n");
     if(peak > 0) peak--;
     dotCount = 0;
   }
 
   vol[volCount] = n;                      // Save sample for dynamic leveling
   if(++volCount >= SAMPLES) volCount = 0; // Advance/rollover sample counter
+  //// log("\tlisten -> volCount -> " + String(volCount) + "\n");
 
   // Get volume range of prior frames
   minLvl = maxLvl = vol[0];
-  for(i=1; i<SAMPLES; i++) {
-    if(vol[i] < minLvl)      minLvl = vol[i];
-    else if(vol[i] > maxLvl) maxLvl = vol[i];
+  for(listenc=1; listenc<SAMPLES; listenc++) {
+    if(vol[listenc] < minLvl)      minLvl = vol[listenc];
+    else if(vol[listenc] > maxLvl) maxLvl = vol[listenc];
   }
   // minLvl and maxLvl indicate the volume range over prior frames, used
   // for vertically scaling the output graph (so it looks interesting
@@ -926,8 +1147,8 @@ void listen(uint32_t c) {
   // and 'jumpy'...so keep some minimum distance between them (this
   // also lets the graph go to zero when no sound is playing):
   if((maxLvl - minLvl) < TOP) maxLvl = minLvl + TOP;
-    minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
-    maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
+  minLvlAvg = (minLvlAvg * 63 + minLvl) >> 6; // Dampen min/max levels
+  maxLvlAvg = (maxLvlAvg * 63 + maxLvl) >> 6; // (fake rolling average)
   log("\tlisten -> bottom\n");
 }
 
@@ -940,7 +1161,8 @@ void pulse() {
 
   //If it's silent, we want the fade effect to take over, hence this if-statement
   if (volume > 0) {
-    uint32_t col = getRainbow(gradient); //Our retrieved 32-bit color
+    // col populated by getRainbow() is unused
+    // uint32_t col = getRainbow(gradient); //Our retrieved 32-bit color
     // uint32_t col = getRainbow(listenColor); //Our retrieved 32-bit color
 
     //These variables determine where to start and end the pulse since it starts from the middle of the strand.
@@ -955,12 +1177,13 @@ void pulse() {
     for (int i = start; i < finish; i++) {
       //"damp" creates the fade effect of being dimmer the farther the pixel is from the center of the strand.
       //  It returns a value between 0 and 1 that peaks at 1 at the center of the strand and 0 at the ends.
+      /** damp is unused, commenting out to suppress compilation warnings
       float damp = float(
                      ((finish - start) / 2.0) -
                      abs((i - start) - ((finish - start) / 2.0))
                    )
                    / float((finish - start) / 2.0);
-
+      **/
       //Sets the each pixel on the strand to the appropriate color and intensity
       //  strand.Color() takes 3 values between 0 & 255, and returns a 32-bit integer.
       //  Notice "knob" affecting the brightness, as in the rest of the visuals.
@@ -1032,6 +1255,17 @@ uint32_t getRainbow(unsigned int i) {
   return strip.Color(255, i, 0);                               //red -> yellow
 }
 
+// Recalcuate delay timers// error printing routine
+void updateStartDelay(int newDelay) {
+  log("\tupdateStartDelay -> old -> " + String(startDelay)+ "\n");
+  startDelay = newDelay;
+  t0 = startDelay;
+  t1 = (startDelay)+91;
+  t2 = (startDelay)+157;
+  t3 = (startDelay-13)+233;
+  t4 = (startDelay-11)+248;
+  log("\tupdateStartDelay -> new -> " + String(startDelay)+ "\n");
+}
 // @brief  Checks for user input (via the Serial Monitor)
 bool getUserInput(char buffer[], uint8_t maxSize) {
   log("\tget_user_input -> top\n");

@@ -81,10 +81,11 @@ int t1 = (startDelay)+91;
 // track2 - second song
 int t2 = (startDelay)+157;
 // track3 - third song  //-6 && removed DRIFT
-int t3 = (startDelay-13)+233;
+// int t3 = (startDelay-13)+233;
+int t3 = (startDelay-13)+245;
 // track4 - all lights off for a short period of time //-13 && removed DRIFT
 // int t4 = (startDelay-11)+248; // used to be -15
-int t4 = (startDelay-11)+268; // used to be -15
+int t4 = (startDelay-11)+261; // used to be -15
 // const int t5 = (START_DELAY-DRIFT-1)+307;
 // track5 - last song follow up by all lights off
 const int t5 = DURATION;
@@ -657,29 +658,36 @@ void loop(void) {
     if (timer <= t0) {
       // Pre-lightshow countdown, lights off
       state = 0;
+      log("state_change=0\n");
     }
     else if ((timer >= t0) && (timer <= t1)) {
       // Lightshow has started, phase t1
       state = 1;
+      log("state_change=1\n");
     }
     else if ((timer >= t1) && (timer <= t2)) {
       // Lightshow has started, phase t2
       state = 2;
+      log("state_change=2\n");
     }
     else if ((timer >= t2) && (timer <= t3)) {
       // Lightshow has started, phase t3
       state = 3;
+      log("state_change=3\n");
     }
     else if ((timer >= t3) && (timer <= t4)) {
       // Lightshow has started, phase t4
       state = 4;
+      log("state_change=4\n");
     }
     else if ((timer >= t4) && (timer <= t5)) {
       // Lightshow has started, phase t5
       state = 5;
+      log("state_change=5\n");
     }
     else if (timer >= t5) {
       state = 0;
+      log("state_change=0\n");
     }
 
     // Showtime start
@@ -749,7 +757,7 @@ void loop(void) {
     else if(state == 3) {
       int actualt3Ms = millis();
       int actualt3S = actualt3Ms/1000;
-      // listening = true;
+      listening = true;
       log("loop -> t3 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt3Ms = " + String(actualt3Ms) + " -> actualt3S = " + String(actualt3S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
@@ -785,7 +793,7 @@ void loop(void) {
     else if(state == 4) {
       int actualt4Ms = millis();
       int actualt4S = actualt4Ms/1000;
-      // listening = false;
+      listening = false;
       log("loop -> t4 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt4Ms = " + String(actualt4Ms) + " -> actualt4S = " + String(actualt4S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       // off

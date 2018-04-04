@@ -82,10 +82,10 @@ int t1 = (startDelay)+91;
 int t2 = (startDelay)+157;
 // track3 - third song  //-6 && removed DRIFT
 // int t3 = (startDelay-13)+233;
-int t3 = (startDelay-13)+245;
+int t3 = (startDelay-13)+236;
 // track4 - all lights off for a short period of time //-13 && removed DRIFT
 // int t4 = (startDelay-11)+248; // used to be -15
-int t4 = (startDelay-11)+261; // used to be -15
+int t4 = (startDelay-11)+259; // used to be -15
 // const int t5 = (START_DELAY-DRIFT-1)+307;
 // track5 - last song follow up by all lights off
 const int t5 = DURATION;
@@ -247,149 +247,185 @@ void setup(void)
     if(deviceAddress.equals("E137E7E43A75")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_MAIN)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("DEADBEEFCAFE")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_BACKUP)";
+      ROLE = "JEDI";
     }
     // JEDI
     if(deviceAddress.equals("E6EFEFFA02C1")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Johan)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("FA4120D2C91E")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (LiamM)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("F40D027498BF")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (LiamB)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("FD2BC8414E31")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Katrina)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("F177C6C39E1B")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (JackMag)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("C56B1E27AE97")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (JackMcL)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("EFC103572EAC")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Joey)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("C4A4B1181F4C")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Greg)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("FE74C6D5F6FF")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Julian)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("C0F156EBFD25")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Ben)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("E7EFC57D4394")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Yemi)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("FE499044E396")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Marlee)";
+      ROLE = "JEDI";
     }
     if(deviceAddress.equals("F2B469E62281")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (Callie)";
+      ROLE = "JEDI";
     }
     // Crowd red
     if(deviceAddress.equals("E829D03B9468")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (MadisonR)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("E3C5C04E8409")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (SofiaB)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("CCE758AEE102")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Molly)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("DDB8C012D919")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (SophieW)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("E736AE157CD1")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Quinn)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("E1CBAB612F3C")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Anna)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("F1625AB398EC")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (SydneyP)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("E5900506E163")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Ashley)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("F98B42202CB3")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (SidneyD)";
+      ROLE = "CRED";
     }
     if(deviceAddress.equals("D73B200A1044")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Krystal)";
+      ROLE = "CRED";
     }
     // Crowd blue
     if(deviceAddress.equals("EBA66841CBCC")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Unathi)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("D8FE84E8B2BE")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Ava)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("E878900748DC")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Michaela)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("C959CC1FB381")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Julia)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("F6D9041FF758")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Melody)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("EF1EAD9E88BC")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Isabella)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("D2CAF26ADD1D")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Lola)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("D2AE8CAAC59E")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Isa)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("EAC11D36CD40")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Emerson)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("E82D6ABE15FC")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Adrienne)";
+      ROLE = "CBLU";
     }
     if(deviceAddress.equals("C1A89FD1ECDB")) {
       deviceNameBase = "CBLU";
       deviceNameSuffix = " (Brianna)";
+      ROLE = "CBLU";
     }
 
     deviceName += deviceNameBase;
@@ -437,6 +473,7 @@ void setup(void)
 
 // Main loop
 void loop(void) {
+  digitalWrite(BOARD_PIN, LOW);
   loopCheck++;
   // Code to intercept reset button pressing
   /**
@@ -460,7 +497,7 @@ void loop(void) {
   }
   **/
   // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
-  digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
+  // digitalWrite(BOARD_PIN, HIGH);    // turn the LED on (HIGH is the voltage level)
   // log("loop -> deviceAddress = " + deviceAddress + "\n");
   log("loop -> top -> " + String(timer) + " -> animationState = " + String(animationState) + " -> listening -> " + String(listening) + "\n");
   // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
@@ -645,8 +682,8 @@ void loop(void) {
     // strip.show();
   }
   else if(animationState == 1) {
-    digitalWrite(BOARD_PIN, LOW);
-    delay(100);
+    // digitalWrite(BOARD_PIN, LOW);
+    // delay(10);
     digitalWrite(BOARD_PIN, HIGH);
     // Calculate time since start for each pass through the loop to control state
     currentMs = millis();
@@ -804,12 +841,12 @@ void loop(void) {
       int actualt5Ms = millis();
       int actualt5S = actualt5Ms/1000;
       listening = true;
-      log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+      // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
       log("loop -> t5 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt5Ms = " + String(actualt5Ms) + " -> actualt5S = " + String(actualt5S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
         // JEDI @ t5
-        log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+        // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
         log("loop -> t5 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // delay(4000);
         // wipeblue
@@ -818,7 +855,7 @@ void loop(void) {
         // listenblue
         listen(blue);
       } else {
-        log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+        // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
         log("loop -> t5 -> CRED/CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // wipeblue
         // colorWipe(blue, DELAY);
@@ -834,10 +871,10 @@ void loop(void) {
     int endMs = millis();
     int endS = endMs/1000;
     log("loop -> timer = " + String(timer) + " -> runningState = " + String(runningState) + " -> animationState = " + String(animationState) + " -> startMs = " + String(endMs) + " -> startS = " + String(endS) + "\n");
+    // digitalWrite(BOARD_PIN, LOW);
+    // delay(10);
     digitalWrite(BOARD_PIN, LOW);
-    delay(100);
-    digitalWrite(BOARD_PIN, HIGH);
-    delay(100);
+    // delay(10);
   }
   else if (animationState == 8){
     // blue

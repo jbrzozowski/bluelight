@@ -70,22 +70,30 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB);
 // Constants
 // Role
 String ROLE = "JEDI";
+const int T1_ADJ = 0;
+const int T2_ADJ = 0;
+const int T3_ADJ = -5;
+const int T4_ADJ = -19;
+const int T1_BASE = 91;
+const int T2_BASE = 157;
+const int T3_BASE = 216;
+const int T4_BASE = 248;
 int startDelay = START_DELAY;
 // Duration of the main loop
 // const int DURATION = 307;
-const int DURATION = 337;
+const int DURATION = 260; // used to be 337, 307 is the real duration
 // from start to t1, show time - all lights are off
 int t0 = startDelay;
 // track1 - first song
-int t1 = (startDelay)+91;
+int t1 = (startDelay+T1_ADJ)+T1_BASE;
 // track2 - second song
-int t2 = (startDelay)+157;
+int t2 = (startDelay+T2_ADJ)+T2_BASE;
 // track3 - third song  //-6 && removed DRIFT
 // int t3 = (startDelay-13)+233;
-int t3 = (startDelay-13)+236;
+int t3 = (startDelay+T3_ADJ)+T3_BASE; // used to be 236
 // track4 - all lights off for a short period of time //-13 && removed DRIFT
 // int t4 = (startDelay-11)+248; // used to be -15
-int t4 = (startDelay-11)+259; // used to be -15
+int t4 = (startDelay+T4_ADJ)+T4_BASE; // used to be -15, used to be 259, -21 used to be -11
 // const int t5 = (START_DELAY-DRIFT-1)+307;
 // track5 - last song follow up by all lights off
 const int t5 = DURATION;
@@ -244,11 +252,13 @@ void setup(void)
 
     // deviceAddress to deviceName mapping
     // Controller units
+    /**
     if(deviceAddress.equals("E137E7E43A75")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_MAIN)";
       ROLE = "JEDI";
     }
+    **/
     if(deviceAddress.equals("DEADBEEFCAFE")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_BACKUP)";
@@ -346,7 +356,7 @@ void setup(void)
       deviceNameSuffix = " (Quinn)";
       ROLE = "CRED";
     }
-    if(deviceAddress.equals("E1CBAB612F3C")) {
+    if(deviceAddress.equals("E137E7E43A75")) {
       deviceNameBase = "CRED";
       deviceNameSuffix = " (Anna)";
       ROLE = "CRED";
@@ -690,41 +700,41 @@ void loop(void) {
     timerMs = currentMs - startMs;
     timer = timerMs/1000;
     log("loop -> animationState = " + String(animationState) + " -> startMs = " + String(startMs) + " -> startS = " + String(startS) + " -> currentMs = " + String(currentMs) + " -> timerMs = " + String(timerMs) + " -> timer = " + String(timer) + "\n");
-
+    log("loop -> startDelay = " + String(startDelay) + " -> t1 = " + String(t1) + " -> t2 = " + String(t2) + " -> t3 = " + String(t3) + " -> t4 = " + String(t4) + " -> t5 = " + String(t5) + "\n");
     // Checking timers and setting state flags
     if (timer <= t0) {
       // Pre-lightshow countdown, lights off
       state = 0;
       log("state_change=0\n");
     }
-    else if ((timer >= t0) && (timer <= t1)) {
+    if ((timer >= t0) && (timer <= t1)) {
       // Lightshow has started, phase t1
       state = 1;
       log("state_change=1\n");
     }
-    else if ((timer >= t1) && (timer <= t2)) {
+    if ((timer >= t1) && (timer <= t2)) {
       // Lightshow has started, phase t2
       state = 2;
       log("state_change=2\n");
     }
-    else if ((timer >= t2) && (timer <= t3)) {
+    if ((timer >= t2) && (timer <= t3)) {
       // Lightshow has started, phase t3
       state = 3;
       log("state_change=3\n");
     }
-    else if ((timer >= t3) && (timer <= t4)) {
+    if ((timer >= t3) && (timer <= t4)) {
       // Lightshow has started, phase t4
       state = 4;
       log("state_change=4\n");
     }
-    else if ((timer >= t4) && (timer <= t5)) {
+    if ((timer >= t4) && (timer <= t5)) {
       // Lightshow has started, phase t5
       state = 5;
       log("state_change=5\n");
     }
-    else if (timer >= t5) {
-      state = 0;
-      log("state_change=0\n");
+    if (timer >= t5) {
+      state = 6;
+      log("state_change=6\n");
     }
 
     // Showtime start
@@ -794,7 +804,7 @@ void loop(void) {
     else if(state == 3) {
       int actualt3Ms = millis();
       int actualt3S = actualt3Ms/1000;
-      listening = true;
+      // listening = true;
       log("loop -> t3 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt3Ms = " + String(actualt3Ms) + " -> actualt3S = " + String(actualt3S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
       if(ROLE.equals("JEDI")) {
@@ -802,28 +812,28 @@ void loop(void) {
         log("loop -> t3 -> JEDI -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // delay(5000);
         // wipeblue
-        // colorWipe(blue, DELAY);
-        // colorWipe(black, DELAY);
+        colorWipe(blue, DELAY);
+        colorWipe(black, DELAY);
         // listenblue
-        listen(blue);
+        // listen(blue);
       }
       if(ROLE.equals("CRED")) {
         // CRED @ t3
         log("loop -> t3 -> CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // wipered
-        // colorWipe(red, DELAY);
-        // colorWipe(black, DELAY);
+        colorWipe(red, DELAY);
+        colorWipe(black, DELAY);
         // listenred
-        listen(red);
+        // listen(red);
       }
       if(ROLE.equals("CBLU")) {
-        // CRBLU @ t3
+        // CBLU @ t3
         log("loop -> t3 -> CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
         // wipeblue
-        // colorWipe(blue, DELAY);
-        // colorWipe(black, DELAY);
+        colorWipe(blue, DELAY);
+        colorWipe(black, DELAY);
         // listenblue
-        listen(blue);
+        // listen(blue);
       }
     }
    // t4
@@ -840,7 +850,7 @@ void loop(void) {
     else if(state == 5) {
       int actualt5Ms = millis();
       int actualt5S = actualt5Ms/1000;
-      listening = true;
+      // listening = true;
       // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
       log("loop -> t5 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt5Ms = " + String(actualt5Ms) + " -> actualt5S = " + String(actualt5S) + " -> listening -> " + String(listening) + "\n");
       // the clock is ticking
@@ -853,7 +863,9 @@ void loop(void) {
         // colorWipe(blue, DELAY);
         // colorWipe(black, DELAY);
         // listenblue
-        listen(blue);
+        // listen(blue);
+        // rainbowcycle
+        rainbowCycle(DELAY);
       } else {
         // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
         log("loop -> t5 -> CRED/CBLU -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
@@ -861,8 +873,23 @@ void loop(void) {
         // colorWipe(blue, DELAY);
         // colorWipe(black, DELAY);
         // listenblue
-        listen(blue);
+        // listen(blue);
+        // rainbowcycle
+        rainbowCycle(DELAY);
       }
+    }
+    else if(state == 6) {
+      int actualt6Ms = millis();
+      int actualt6S = actualt6Ms/1000;
+      listening = true;
+      // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+      log("loop -> t6 -> timer = " + String(timer) + " -> animationState = " + String(animationState) + " -> actualt6Ms = " + String(actualt6Ms) + " -> actualt6S = " + String(actualt6S) + " -> listening -> " + String(listening) + "\n");
+      // the clock is ticking
+      // JEDI @ t5
+      // log("loop -> milli_check -> " + String(millis()) + " -> loop_check -> " + String(loopCheck) + "\n");
+      log("loop -> t6 -> JEDI/CBLU/CRED -> animationState = " + String(animationState) + " -> timer = " + String(timer) + "\n");
+      // listenblue
+      listen(blue);
     }
     // timer++;
     // Showtime end
@@ -1305,10 +1332,12 @@ void updateStartDelay(int newDelay) {
   log("\tupdateStartDelay -> old -> " + String(startDelay)+ "\n");
   startDelay = newDelay;
   t0 = startDelay;
-  t1 = (startDelay)+91;
-  t2 = (startDelay)+157;
-  t3 = (startDelay-13)+233;
-  t4 = (startDelay-11)+248;
+  t1 = (startDelay+T1_ADJ)+T1_BASE;
+  t2 = (startDelay+T2_ADJ)+T2_BASE;
+  // t3 = (startDelay-13)+233;
+  t3 = (startDelay+T3_ADJ)+T3_BASE;
+  // t4 = (startDelay-11)+248;
+  t4 = (startDelay+T4_ADJ)+T4_BASE;
   log("\tupdateStartDelay -> new -> " + String(startDelay)+ "\n");
 }
 // @brief  Checks for user input (via the Serial Monitor)

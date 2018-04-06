@@ -96,7 +96,7 @@ int t3 = (startDelay+T3_ADJ)+T3_BASE; // used to be 236
 int t4 = (startDelay+T4_ADJ)+T4_BASE; // used to be -15, used to be 259, -21 used to be -11
 // const int t5 = (START_DELAY-DRIFT-1)+307;
 // track5 - last song follow up by all lights off
-const int t5 = DURATION;
+int t5 = (startDelay)+DURATION;
 
 // Global variables
 char inputs[BUFSIZE+1];
@@ -252,13 +252,11 @@ void setup(void)
 
     // deviceAddress to deviceName mapping
     // Controller units
-    /**
-    if(deviceAddress.equals("E137E7E43A75")) {
+    if(deviceAddress.equals("E1CBAB612F3C")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_MAIN)";
       ROLE = "JEDI";
     }
-    **/
     if(deviceAddress.equals("DEADBEEFCAFE")) {
       deviceNameBase = "JEDI";
       deviceNameSuffix = " (_BACKUP)";
@@ -1334,10 +1332,9 @@ void updateStartDelay(int newDelay) {
   t0 = startDelay;
   t1 = (startDelay+T1_ADJ)+T1_BASE;
   t2 = (startDelay+T2_ADJ)+T2_BASE;
-  // t3 = (startDelay-13)+233;
   t3 = (startDelay+T3_ADJ)+T3_BASE;
-  // t4 = (startDelay-11)+248;
   t4 = (startDelay+T4_ADJ)+T4_BASE;
+  t5 = (startDelay)+DURATION;
   log("\tupdateStartDelay -> new -> " + String(startDelay)+ "\n");
 }
 // @brief  Checks for user input (via the Serial Monitor)

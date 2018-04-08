@@ -15,5 +15,9 @@ bluelight_remote was the original mode designed and devloped.  In contains speci
 * Provide list of components
 * Documentation
 
+# Reference projects:
+* https://github.com/adafruit/Adafruit_BluefruitLE_nRF51
+* https://github.com/adafruit/Adafruit_NeoPixel
+
 # Parts list
 To be provided

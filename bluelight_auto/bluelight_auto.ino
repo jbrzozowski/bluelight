@@ -1,11 +1,21 @@
 /*********************************************************************
 Project:bluelight
+File:blughlight_auto.ino
+Description:Automatic control of LEDs over BLE.
 Author:John Jason Brzozowski
 Email:jjmb@jjmb.com
 
 MIT license, check LICENSE for more information
 All text above, and the splash screen below must be included in
 any redistribution
+
+Thanks to Adafruit for some of the base reference code.
+
+This is an example for our nRF51822 based Bluefruit LE modules
+Pick one up today in the adafruit shop!
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
+products from Adafruit!
 *********************************************************************/
 
 #include <string.h>
@@ -265,174 +275,174 @@ void setup(void)
     // JEDI
     if(deviceAddress.equals("E6EFEFFA02C1")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Johan)";
+      deviceNameSuffix = " (E6EFEFFA02C1)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("FA4120D2C91E")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (LiamM)";
+      deviceNameSuffix = " (FA4120D2C91E)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("F40D027498BF")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (LiamB)";
+      deviceNameSuffix = " (F40D027498BF)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("FD2BC8414E31")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Katrina)";
+      deviceNameSuffix = " (FD2BC8414E31)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("F177C6C39E1B")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (JackMag)";
+      deviceNameSuffix = " (F177C6C39E1B)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("C56B1E27AE97")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (JackMcL)";
+      deviceNameSuffix = " (C56B1E27AE97)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("EFC103572EAC")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Joey)";
+      deviceNameSuffix = " (EFC103572EAC)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("C4A4B1181F4C")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Greg)";
+      deviceNameSuffix = " (C4A4B1181F4C)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("FE74C6D5F6FF")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Julian)";
+      deviceNameSuffix = " (FE74C6D5F6FF)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("C0F156EBFD25")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Ben)";
+      deviceNameSuffix = " (C0F156EBFD25)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("E7EFC57D4394")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Yemi)";
+      deviceNameSuffix = " (E7EFC57D4394)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("FE499044E396")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Marlee)";
+      deviceNameSuffix = " (FE499044E396)";
       ROLE = "JEDI";
     }
     if(deviceAddress.equals("F2B469E62281")) {
       deviceNameBase = "JEDI";
-      deviceNameSuffix = " (Callie)";
+      deviceNameSuffix = " (F2B469E62281)";
       ROLE = "JEDI";
     }
     // Crowd red
     if(deviceAddress.equals("E829D03B9468")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (MadisonR)";
+      deviceNameSuffix = " (E829D03B9468)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("E3C5C04E8409")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (SofiaB)";
+      deviceNameSuffix = " (E3C5C04E8409)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("CCE758AEE102")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (Molly)";
+      deviceNameSuffix = " (CCE758AEE102)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("DDB8C012D919")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (SophieW)";
+      deviceNameSuffix = " (DDB8C012D919)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("E736AE157CD1")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (Quinn)";
+      deviceNameSuffix = " (E736AE157CD1)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("E137E7E43A75")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (Anna)";
+      deviceNameSuffix = " (E137E7E43A75)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("F1625AB398EC")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (SydneyP)";
+      deviceNameSuffix = " (F1625AB398EC)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("E5900506E163")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (Ashley)";
+      deviceNameSuffix = " (E5900506E163)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("F98B42202CB3")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (SidneyD)";
+      deviceNameSuffix = " (F98B42202CB3)";
       ROLE = "CRED";
     }
     if(deviceAddress.equals("D73B200A1044")) {
       deviceNameBase = "CRED";
-      deviceNameSuffix = " (Krystal)";
+      deviceNameSuffix = " (D73B200A1044)";
       ROLE = "CRED";
     }
     // Crowd blue
     if(deviceAddress.equals("EBA66841CBCC")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Unathi)";
+      deviceNameSuffix = " (EBA66841CBCC)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("D8FE84E8B2BE")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Ava)";
+      deviceNameSuffix = " (D8FE84E8B2BE)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("E878900748DC")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Michaela)";
+      deviceNameSuffix = " (E878900748DC)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("C959CC1FB381")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Julia)";
+      deviceNameSuffix = " (C959CC1FB381)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("F6D9041FF758")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Melody)";
+      deviceNameSuffix = " (F6D9041FF758)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("EF1EAD9E88BC")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Isabella)";
+      deviceNameSuffix = " (EF1EAD9E88BC)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("D2CAF26ADD1D")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Lola)";
+      deviceNameSuffix = " (D2CAF26ADD1D)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("D2AE8CAAC59E")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Isa)";
+      deviceNameSuffix = " (D2AE8CAAC59E)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("EAC11D36CD40")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Emerson)";
+      deviceNameSuffix = " (EAC11D36CD40)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("E82D6ABE15FC")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Adrienne)";
+      deviceNameSuffix = " (E82D6ABE15FC)";
       ROLE = "CBLU";
     }
     if(deviceAddress.equals("C1A89FD1ECDB")) {
       deviceNameBase = "CBLU";
-      deviceNameSuffix = " (Brianna)";
+      deviceNameSuffix = " (C1A89FD1ECDB)";
       ROLE = "CBLU";
     }
 

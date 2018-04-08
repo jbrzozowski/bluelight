@@ -15,5 +15,5 @@ bluelight_remote was the original mode designed and devloped.  In contains speci
 * Provide list of components
 * Documentation
 
-# List of components
+# Parts list
 To be provided
